@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - XSS VADI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <div class="alert alert-warning mb-0 text-center" role="alert">
+    <strong>⚠️ AVERTISSEMENT :</strong> Cette application est VOLONTAIREMENT VULNÉRABLE à des fins pédagogiques. Usage local uniquement.
+  </div>
+
+  <main class="container my-5">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/chapters">Chapitres</a></li>
+        <li class="breadcrumb-item active"><%= chapter.title %></li>
+      </ol>
+    </nav>
+
+    <h1 class="mb-4"><%= chapter.title %></h1>
+
+    <!-- Contenu du cours -->
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">📖 Contenu du cours</h5>
+      </div>
+      <div class="card-body">
+        <%- chapter.content %>
+      </div>
+    </div>
+
+    <!-- Zone de test -->
+    <div class="card mb-4">
+      <div class="card-header bg-warning">
+        <h5 class="mb-0">🧪 Zone de test</h5>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/chapter/<%= chapter.id %>/post">
+          <div class="mb-3">
+            <label for="content" class="form-label">Message à poster :</label>
+            <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+            <small class="form-text text-muted">
+              Essayez d'injecter du HTML ou du JavaScript ici !
+            </small>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="safeMode" name="safe" value="true">
+              <label class="form-check-label" for="safeMode">
+                <strong>Mode SAFE</strong> (échapper le HTML)
+              </label>
+            </div>
+            <small class="form-text text-muted">
+              En mode SAFE, le contenu est échappé et ne sera pas exécuté. Désactivez pour voir la vulnérabilité.
+            </small>
+          </div>
+
+          <button type="submit" class="btn btn-warning">Poster le message</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Messages postés -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">💬 Messages postés (<%= posts.length %>)</h5>
+      </div>
+      <div class="card-body">
+        <% if (posts.length === 0) { %>
+          <p class="text-muted">Aucun message pour le moment. Soyez le premier à poster !</p>
+        <% } else { %>
+          <% posts.forEach(post => { %>
+            <div class="card mb-3 <%= post.safe ? 'border-success' : 'border-danger' %>">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="card-subtitle text-muted">
+                    👤 <%= post.author %>
+                    <span class="badge <%= post.safe ? 'bg-success' : 'bg-danger' %>">
+                      <%= post.safe ? 'SAFE' : 'UNSAFE' %>
+                    </span>
+                  </h6>
+                  <small class="text-muted"><%= new Date(post.timestamp).toLocaleString('fr-FR') %></small>
+                </div>
+                <div class="post-content">
+                  <% if (post.safe) { %>
+                    <!-- Mode SAFE : contenu échappé -->
+                    <p class="mb-0"><%= post.content %></p>
+                  <% } else { %>
+                    <!-- Mode UNSAFE : contenu rendu tel quel (VULNÉRABLE) -->
+                    <div class="alert alert-danger mb-2">
+                      <small><strong>⚠️ Rendu UNSAFE :</strong> Le contenu ci-dessous est rendu tel quel (HTML/JS non échappé)</small>
+                    </div>
+                    <%- post.content %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Commentaires admin globaux -->
+    <% if (globalComments.length > 0) { %>
+      <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">📢 Annonces de l'administrateur</h5>
+        </div>
+        <div class="card-body">
+          <% globalComments.forEach(comment => { %>
+            <div class="alert alert-primary">
+              <div class="d-flex justify-content-between">
+                <strong>👨‍💼 Administrateur</strong>
+                <small class="text-muted"><%= new Date(comment.timestamp).toLocaleString('fr-FR') %></small>
+              </div>
+              <!-- ATTENTION : Rendu non échappé pour la démonstration -->
+              <div class="mt-2">
+                <%- comment.content %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Commentaires du chapitre -->
+    <div class="card">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">💭 Commentaires (<%= comments.length %>)</h5>
+      </div>
+      <div class="card-body">
+        <!-- Formulaire d'ajout -->
+        <form method="POST" action="/chapter/<%= chapter.id %>/comment" class="mb-4">
+          <div class="mb-3">
+            <label for="commentContent" class="form-label">Ajouter un commentaire :</label>
+            <textarea class="form-control" id="commentContent" name="content" rows="2" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-success">Commenter</button>
+        </form>
+
+        <hr>
+
+        <!-- Liste des commentaires (échappés par défaut) -->
+        <% if (comments.length === 0) { %>
+          <p class="text-muted">Aucun commentaire pour le moment.</p>
+        <% } else { %>
+          <% comments.forEach(comment => { %>
+            <div class="card mb-2">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <h6 class="card-subtitle text-muted">👤 <%= comment.author %></h6>
+                  <small class="text-muted"><%= new Date(comment.timestamp).toLocaleString('fr-FR') %></small>
+                </div>
+                <p class="mb-0 mt-2"><%= comment.content %></p>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Rafraîchissement automatique des données du chapitre
+    const CHAPTER_ID = '<%= chapter.id %>';
+    let currentCounts = {
+      posts: <%= posts.length %>,
+      comments: <%= comments.length %>,
+      globalComments: <%= globalComments.length %>
+    };
+    let autoRefreshEnabled = true;
+    let refreshInterval = null;
+    let hasExecutedGlobalScripts = false;
+
+    // Fonction pour rafraîchir les données du chapitre
+    async function refreshChapterData() {
+      if (!autoRefreshEnabled) return;
+
+      try {
+        const response = await fetch(`/api/chapter/${CHAPTER_ID}`);
+        const data = await response.json();
+
+        if (data.success) {
+          let hasNewContent = false;
+
+          // Vérifier s'il y a de nouveaux posts
+          if (data.counts.posts !== currentCounts.posts) {
+            updatePosts(data.posts);
+            currentCounts.posts = data.counts.posts;
+            hasNewContent = true;
+          }
+
+          // Vérifier s'il y a de nouveaux commentaires
+          if (data.counts.comments !== currentCounts.comments) {
+            updateComments(data.comments);
+            currentCounts.comments = data.counts.comments;
+            hasNewContent = true;
+          }
+
+          // Vérifier s'il y a de nouveaux commentaires globaux
+          if (data.counts.globalComments !== currentCounts.globalComments) {
+            updateGlobalComments(data.globalComments);
+            currentCounts.globalComments = data.counts.globalComments;
+            hasNewContent = true;
+          }
+
+          // Notification si nouveau contenu
+          if (hasNewContent) {
+            showUpdateNotification();
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du rafraîchissement:', error);
+      }
+    }
+
+    // Mettre à jour les posts
+    function updatePosts(posts) {
+      const postsContainer = document.querySelector('.card-header.bg-secondary').parentElement.querySelector('.card-body');
+      const postCountBadge = document.querySelector('.card-header.bg-secondary h5');
+
+      if (postCountBadge) {
+        postCountBadge.innerHTML = `💬 Messages postés (<span class="badge bg-primary">${posts.length}</span>)`;
+      }
+
+      if (posts.length === 0) {
+        postsContainer.innerHTML = '<p class="text-muted">Aucun message pour le moment. Soyez le premier à poster !</p>';
+      } else {
+        let html = '';
+        posts.forEach(post => {
+          const date = new Date(post.timestamp).toLocaleString('fr-FR');
+          const badgeClass = post.safe ? 'bg-success' : 'bg-danger';
+          const badgeText = post.safe ? 'SAFE' : 'UNSAFE';
+          const borderClass = post.safe ? 'border-success' : 'border-danger';
+
+          html += `
+            <div class="card mb-3 ${borderClass}">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="card-subtitle text-muted">
+                    👤 ${escapeHtml(post.author)}
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                  </h6>
+                  <small class="text-muted">${date}</small>
+                </div>
+                <div class="post-content">
+          `;
+
+          if (post.safe) {
+            html += `<p class="mb-0">${escapeHtml(post.content)}</p>`;
+          } else {
+            html += `
+              <div class="alert alert-danger mb-2">
+                <small><strong>⚠️ Rendu UNSAFE :</strong> Le contenu ci-dessous est rendu tel quel (HTML/JS non échappé)</small>
+              </div>
+              ${post.content}
+            `;
+          }
+
+          html += `
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        postsContainer.innerHTML = html;
+      }
+    }
+
+    // Mettre à jour les commentaires
+    function updateComments(comments) {
+      const commentsContainer = document.querySelector('.card-header.bg-success').parentElement.querySelector('.card-body');
+      const commentCountBadge = document.querySelector('.card-header.bg-success h5');
+
+      if (commentCountBadge) {
+        commentCountBadge.innerHTML = `💭 Commentaires (<span class="badge bg-light text-dark">${comments.length}</span>)`;
+      }
+
+      // Conserver le formulaire
+      const form = commentsContainer.querySelector('form');
+      const formHTML = form ? form.outerHTML : '';
+
+      let html = formHTML + '<hr>';
+
+      if (comments.length === 0) {
+        html += '<p class="text-muted">Aucun commentaire pour le moment.</p>';
+      } else {
+        comments.forEach(comment => {
+          const date = new Date(comment.timestamp).toLocaleString('fr-FR');
+          html += `
+            <div class="card mb-2">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <h6 class="card-subtitle text-muted">👤 ${escapeHtml(comment.author)}</h6>
+                  <small class="text-muted">${date}</small>
+                </div>
+                <p class="mb-0 mt-2">${escapeHtml(comment.content)}</p>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      commentsContainer.innerHTML = html;
+    }
+
+    // Mettre à jour les commentaires globaux (admin)
+    function updateGlobalComments(globalComments) {
+      // Chercher le conteneur des commentaires globaux
+      let globalCommentsContainer = document.querySelector('.card.border-primary');
+
+      if (globalComments.length === 0) {
+        // Supprimer le conteneur s'il existe
+        if (globalCommentsContainer) {
+          globalCommentsContainer.remove();
+        }
+        return;
+      }
+
+      // Créer ou mettre à jour le conteneur
+      if (!globalCommentsContainer) {
+        // Créer le conteneur
+        globalCommentsContainer = document.createElement('div');
+        globalCommentsContainer.className = 'card mb-4 border-primary';
+
+        // Insérer avant la section des commentaires
+        const commentsSection = document.querySelector('.card-header.bg-success').parentElement;
+        commentsSection.parentElement.insertBefore(globalCommentsContainer, commentsSection);
+      }
+
+      // Construire le HTML des commentaires globaux
+      let html = `
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">📢 Annonces de l'administrateur <span class="badge bg-light text-primary">${globalComments.length}</span></h5>
+        </div>
+        <div class="card-body">
+      `;
+
+      globalComments.forEach(comment => {
+        const date = new Date(comment.timestamp).toLocaleString('fr-FR');
+        html += `
+          <div class="alert alert-primary">
+            <div class="d-flex justify-content-between">
+              <strong>👨‍💼 Administrateur</strong>
+              <small class="text-muted">${date}</small>
+            </div>
+            <div class="mt-2" data-global-comment="${comment.id}">
+              ${comment.content}
+            </div>
+          </div>
+        `;
+      });
+
+      html += '</div>';
+
+      globalCommentsContainer.innerHTML = html;
+    }
+
+    // Afficher une notification de mise à jour
+    function showUpdateNotification() {
+      const notification = document.createElement('div');
+      notification.className = 'update-notification';
+      notification.innerHTML = `
+        <div class="alert alert-info alert-dismissible fade show" role="alert" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; min-width: 280px;">
+          <strong>🔄 Nouveau contenu disponible !</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 4000);
+    }
+
+    // Fonction helper pour échapper le HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Toggle auto-refresh
+    function toggleAutoRefresh() {
+      autoRefreshEnabled = !autoRefreshEnabled;
+      const indicator = document.getElementById('refreshIndicator');
+
+      if (autoRefreshEnabled) {
+        indicator.textContent = '🔄 Auto';
+        indicator.classList.remove('text-muted');
+        indicator.classList.add('text-success');
+        indicator.title = 'Rafraîchissement automatique activé - Cliquez pour désactiver';
+        startAutoRefresh();
+      } else {
+        indicator.textContent = '⏸️ Pause';
+        indicator.classList.remove('text-success');
+        indicator.classList.add('text-muted');
+        indicator.title = 'Rafraîchissement automatique en pause - Cliquez pour réactiver';
+        stopAutoRefresh();
+      }
+    }
+
+    // Démarrer le rafraîchissement automatique
+    function startAutoRefresh() {
+      if (refreshInterval) clearInterval(refreshInterval);
+      refreshInterval = setInterval(refreshChapterData, 5000); // Toutes les 5 secondes
+    }
+
+    // Arrêter le rafraîchissement automatique
+    function stopAutoRefresh() {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+      }
+    }
+
+    // Ajouter l'indicateur de rafraîchissement
+    document.addEventListener('DOMContentLoaded', function() {
+      const h1 = document.querySelector('main h1');
+      if (h1) {
+        const indicator = document.createElement('span');
+        indicator.id = 'refreshIndicator';
+        indicator.className = 'badge bg-success text-success float-end';
+        indicator.textContent = '🔄 Auto';
+        indicator.style.cursor = 'pointer';
+        indicator.title = 'Rafraîchissement automatique activé - Cliquez pour désactiver';
+        indicator.onclick = toggleAutoRefresh;
+        h1.appendChild(indicator);
+      }
+
+      // Démarrer le rafraîchissement automatique
+      startAutoRefresh();
+    });
+
+    // Arrêter le rafraîchissement quand l'utilisateur quitte la page
+    window.addEventListener('beforeunload', stopAutoRefresh);
+  </script>
+
+  <style>
+    .update-notification {
+      animation: slideInBottom 0.3s ease-out;
+    }
+
+    @keyframes slideInBottom {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    #refreshIndicator {
+      font-size: 0.6rem;
+      padding: 0.25rem 0.5rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    #refreshIndicator:hover {
+      transform: scale(1.1);
+      transition: transform 0.2s;
+    }
+  </style>
+</body>
+</html>

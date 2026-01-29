@@ -1,0 +1,161 @@
+/* XSS VADI - Custom Styles */
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Navbar personnalisée */
+.navbar-brand strong {
+  font-size: 1.3rem;
+}
+
+/* Cards */
+.card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Badges */
+.badge {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+}
+
+/* Code blocks */
+pre {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  overflow-x: auto;
+}
+
+code {
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Post content */
+.post-content {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+/* Login page */
+.min-vh-100 {
+  min-height: 100vh !important;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 4px;
+}
+
+/* Tables */
+.table {
+  font-size: 0.9rem;
+}
+
+.table-responsive {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  border-top: 1px solid #ddd;
+}
+
+/* Danger zone styling */
+.border-danger {
+  border-width: 2px !important;
+}
+
+.border-success {
+  border-width: 2px !important;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar-brand strong {
+    font-size: 1rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+/* Custom warning for unsafe content */
+.alert-danger small {
+  font-weight: 600;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  background-color: #f8f9fa;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+}
+
+/* Demo token display */
+code {
+  color: #e83e8c;
+}
+
+/* Scrollbar styling for webkit browsers */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

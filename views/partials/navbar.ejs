@@ -1,0 +1,47 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <strong>🔓 XSS VADI</strong> <span class="badge bg-warning text-dark">DEMO</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <% if (user) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/chapters">Chapitres</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/defense">Défenses</a>
+          </li>
+          <% if (isAdmin) { %>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin">Admin Panel</a>
+            </li>
+          <% } %>
+        <% } %>
+      </ul>
+      <ul class="navbar-nav">
+        <% if (user) { %>
+          <li class="nav-item">
+            <span class="navbar-text text-white me-3">
+              <% if (isAdmin) { %>
+                👨‍💼 Admin
+              <% } else { %>
+                👤 <%= user %>
+              <% } %>
+            </span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">Déconnexion</a>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/login">Connexion</a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>
