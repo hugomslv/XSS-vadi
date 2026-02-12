@@ -3,64 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - XSS VADI</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Connexion - XSS VADI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-light">
-  <div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-      <div class="col-md-6 col-lg-4">
-        <div class="card shadow">
-          <div class="card-body p-4">
-            <h1 class="text-center mb-4">
-              <span class="text-danger">🔓</span> XSS VADI
-            </h1>
-            <p class="text-center text-muted mb-4">Démonstration pédagogique</p>
+<body>
+  <div class="login-container">
+    <div class="login-card card">
+      <div class="card-body">
+        <div class="login-header">
+          <div class="login-logo">&#128274;</div>
+          <h1 class="login-title">XSS VADI</h1>
+          <p class="login-subtitle">Demonstration pedagogique des failles XSS</p>
+        </div>
 
-            <% if (error) { %>
-              <div class="alert alert-danger" role="alert">
-                <%= error %>
-              </div>
-            <% } %>
-
-            <form method="POST" action="/login">
-              <div class="mb-3">
-                <label for="username" class="form-label">Nom d'utilisateur</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-                <small class="form-text text-muted">
-                  Entrez votre prénom
-                </small>
-              </div>
-
-              <div class="mb-3">
-                <label for="password" class="form-label">Mot de passe</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-                <small class="form-text text-muted">
-                  Entrez n'importe quel mot de passe (mais <strong>JAMAIS votre vrai mot de passe !</strong>)
-                </small>
-              </div>
-
-              <button type="submit" class="btn btn-danger w-100">Se connecter</button>
-            </form>
-
-            <hr class="my-4">
-
-            <div class="card bg-light">
-              <div class="card-body">
-                <h6 class="card-title">ℹ️ Informations</h6>
-                <ul class="mb-0 small">
-                  <li><strong>Élèves :</strong> Entrez votre prénom et n'importe quel mot de passe</li>
-                  <li><strong>⚠️ IMPORTANT :</strong> N'utilisez JAMAIS un vrai mot de passe sur cette application de démonstration !</li>
-                </ul>
-              </div>
+        <% if (error) { %>
+          <div class="alert alert-danger">
+            <span class="alert-icon">&#9888;</span>
+            <div class="alert-content">
+              <p class="alert-message"><%= error %></p>
             </div>
+          </div>
+        <% } %>
+
+        <form method="POST" action="/login">
+          <div class="form-group">
+            <label for="username" class="form-label">Nom d'utilisateur</label>
+            <input
+              type="text"
+              class="form-input"
+              id="username"
+              name="username"
+              placeholder="Entrez votre prenom"
+              required
+              autocomplete="username"
+            >
+            <span class="form-hint">Utilisez votre prenom ou un pseudonyme</span>
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Mot de passe</label>
+            <input
+              type="password"
+              class="form-input"
+              id="password"
+              name="password"
+              placeholder="Entrez un mot de passe"
+              required
+              autocomplete="current-password"
+            >
+            <span class="form-hint text-danger">N'utilisez JAMAIS votre vrai mot de passe !</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg w-full">
+            Se connecter
+          </button>
+        </form>
+
+        <hr>
+
+        <div class="card card-primary">
+          <div class="card-body">
+            <h5 class="text-primary mb-md">&#8505; Informations</h5>
+            <ul class="checklist">
+              <li class="checklist-item">Eleves : Entrez votre prenom + n'importe quel mot de passe</li>
+              <li class="checklist-item">Cette app est une demo pedagogique volontairement vulnerable</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="alert alert-warning mt-lg">
+          <span class="alert-icon">&#9888;</span>
+          <div class="alert-content">
+            <p class="alert-title">Avertissement</p>
+            <p class="alert-message">Cette application est VOLONTAIREMENT VULNERABLE. Usage pedagogique uniquement en environnement controle.</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>

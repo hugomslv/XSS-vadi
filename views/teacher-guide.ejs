@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guide Enseignant - XSS VADI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <% const currentPage = 'teacher'; %>
+  <%- include('partials/navbar') %>
+
+  <!-- Banner -->
+  <div class="alert alert-info alert-banner">
+    <span class="alert-icon">&#128218;</span>
+    <div class="alert-content">
+      <p class="alert-message"><strong>GUIDE ENSEIGNANT :</strong> Tout ce qu'il faut pour animer le mini-cours XSS</p>
+    </div>
+  </div>
+
+  <main class="container py-xl">
+    <h1 class="mb-md">&#128218; Guide de l'Enseignant</h1>
+    <p class="text-secondary mb-xl">Module ICT-183 - Demonstration pedagogique des failles XSS</p>
+
+    <!-- Quick Start -->
+    <div class="card card-success mb-xl">
+      <div class="card-header">
+        <h4>&#9889; Demarrage rapide (5 min)</h4>
+      </div>
+      <div class="card-body">
+        <ol>
+          <li class="mb-md">
+            <strong>Lancer le serveur :</strong>
+            <div class="code-block mt-sm">
+              <pre><code>cd D:\XSS-vadi
+npm start</code></pre>
+            </div>
+          </li>
+          <li class="mb-md">
+            <strong>Noter l'URL affichee :</strong> Le serveur affiche l'URL reseau (ex: <code>http://192.168.x.x:3000</code>)
+          </li>
+          <li class="mb-md">
+            <strong>Partager l'URL aux eleves :</strong> Ecrire au tableau ou projeter
+          </li>
+          <li class="mb-md">
+            <strong>Se connecter en admin :</strong>
+            <ul class="mt-sm">
+              <li>Login : <code>admin</code></li>
+              <li>Mot de passe : <code>admin**123</code></li>
+            </ul>
+          </li>
+          <li>
+            <strong>Les eleves se connectent</strong> avec leur prenom + n'importe quel mot de passe
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Deroulement recommande -->
+    <div class="card card-primary mb-xl">
+      <div class="card-header">
+        <h4>&#128337; Deroulement recommande du cours (45-60 min)</h4>
+      </div>
+      <div class="card-body">
+        <div class="grid gap-lg">
+          <!-- Phase 1 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center gap-md mb-md">
+                <div class="chapter-number">1</div>
+                <div>
+                  <h5 class="mb-0">Introduction (10 min)</h5>
+                  <span class="badge badge-primary">Presentation</span>
+                </div>
+              </div>
+              <ul class="checklist">
+                <li class="checklist-item">Expliquer ce qu'est XSS (Cross-Site Scripting)</li>
+                <li class="checklist-item">Montrer des exemples reels (sans details techniques dangereux)</li>
+                <li class="checklist-item">Expliquer les 3 types : Reflechi, Stocke, DOM-based</li>
+                <li class="checklist-item">Presenter les risques : vol de session, defacement, keylogging...</li>
+              </ul>
+              <p class="text-sm text-muted mt-md">Support : Chapitres 1-2 de l'application</p>
+            </div>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center gap-md mb-md">
+                <div class="chapter-number">2</div>
+                <div>
+                  <h5 class="mb-0">Demo en direct (10 min)</h5>
+                  <span class="badge badge-danger">Demonstration</span>
+                </div>
+              </div>
+              <ul class="checklist">
+                <li class="checklist-item">Ouvrir la page <a href="/demo">/demo</a> sur l'ecran projete</li>
+                <li class="checklist-item">Montrer la difference vulnerable vs securise avec des exemples simples</li>
+                <li class="checklist-item">Tester <code>&lt;strong&gt;test&lt;/strong&gt;</code> (HTML basique)</li>
+                <li class="checklist-item">Tester <code>&lt;img src=x onerror="alert('XSS')"&gt;</code></li>
+                <li class="checklist-item">Expliquer pourquoi le cote "securise" affiche du texte brut</li>
+              </ul>
+              <p class="text-sm text-muted mt-md">Support : Page Demo Interactive</p>
+            </div>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center gap-md mb-md">
+                <div class="chapter-number">3</div>
+                <div>
+                  <h5 class="mb-0">Activite pratique (20 min)</h5>
+                  <span class="badge badge-warning">Exercices</span>
+                </div>
+              </div>
+              <ul class="checklist">
+                <li class="checklist-item">Demander aux eleves d'ouvrir <a href="/activity">/activity</a></li>
+                <li class="checklist-item">Laisser les eleves faire les 6 exercices en autonomie</li>
+                <li class="checklist-item">Circuler pour aider ceux en difficulte</li>
+                <li class="checklist-item">Timer optionnel : 15-20 minutes</li>
+              </ul>
+              <p class="text-sm text-muted mt-md">Support : Page Activite Pratique (avec timer integre)</p>
+            </div>
+          </div>
+
+          <!-- Phase 4 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center gap-md mb-md">
+                <div class="chapter-number">4</div>
+                <div>
+                  <h5 class="mb-0">Contre-mesures (10 min)</h5>
+                  <span class="badge badge-success">Defense</span>
+                </div>
+              </div>
+              <ul class="checklist">
+                <li class="checklist-item">Ouvrir <a href="/defense">/defense</a> ensemble</li>
+                <li class="checklist-item">Parcourir les onglets : Echappement, Sanitization, CSP, Cookies</li>
+                <li class="checklist-item">Insister sur la checklist du dev junior</li>
+                <li class="checklist-item">Montrer le tableau "A faire / A ne pas faire"</li>
+              </ul>
+              <p class="text-sm text-muted mt-md">Support : Page Contre-mesures</p>
+            </div>
+          </div>
+
+          <!-- Phase 5 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center gap-md mb-md">
+                <div class="chapter-number">5</div>
+                <div>
+                  <h5 class="mb-0">Synthese (5 min)</h5>
+                  <span class="badge badge-purple">Conclusion</span>
+                </div>
+              </div>
+              <ul class="checklist">
+                <li class="checklist-item">Recapituler les points cles</li>
+                <li class="checklist-item">Questions/reponses</li>
+                <li class="checklist-item">Rappeler que cette demo est UNIQUEMENT pedagogique</li>
+                <li class="checklist-item">Mentionner les ressources pour aller plus loin (OWASP, etc.)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script de demo 5 minutes -->
+    <div class="card card-warning mb-xl">
+      <div class="card-header">
+        <h4>&#127916; Script de demo rapide (5 min)</h4>
+      </div>
+      <div class="card-body">
+        <p class="mb-lg">Si vous manquez de temps, voici une demo condensee :</p>
+
+        <ol>
+          <li class="mb-md">
+            <strong>Ouvrir /demo</strong> sur l'ecran projete
+          </li>
+          <li class="mb-md">
+            <strong>Taper :</strong> <code>&lt;b&gt;Hello&lt;/b&gt;</code>
+            <br><span class="text-muted">Montrer : cote gauche = gras, cote droit = texte brut</span>
+          </li>
+          <li class="mb-md">
+            <strong>Taper :</strong> <code>&lt;img src=x onerror="alert('Pirate!')"&gt;</code>
+            <br><span class="text-muted">Montrer : alerte qui apparait cote vulnerable</span>
+          </li>
+          <li class="mb-md">
+            <strong>Expliquer :</strong> "En production, ce ne serait pas une alerte mais du vol de donnees"
+          </li>
+          <li>
+            <strong>Conclure :</strong> "Toujours echapper les donnees utilisateur avant affichage"
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Panneau Admin -->
+    <div class="card card-danger mb-xl">
+      <div class="card-header">
+        <h4>&#128736; Utilisation du panneau admin</h4>
+      </div>
+      <div class="card-body">
+        <p class="mb-lg">Le panneau admin (<a href="/admin">/admin</a>) vous permet de :</p>
+
+        <div class="grid grid-2 gap-lg">
+          <div>
+            <h5 class="mb-sm">&#128227; Commentaires globaux</h5>
+            <p class="text-sm text-secondary">Envoyer des messages qui apparaissent sur tous les chapitres. Utile pour faire une demo de XSS Stocke.</p>
+            <div class="alert alert-warning mt-sm">
+              <span class="alert-icon">&#9888;</span>
+              <div class="alert-content">
+                <p class="alert-message text-sm">Les commentaires globaux sont rendus sans echappement (vulnerable). Utilisez uniquement des payloads pedagogiques !</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h5 class="mb-sm">&#127919; Captures</h5>
+            <p class="text-sm text-secondary">Voir les "demoTokens" captures par les payloads XSS. Montre aux eleves ce qu'un attaquant pourrait voler.</p>
+            <p class="text-sm text-muted mt-sm">Rafraichissement automatique toutes les 3 secondes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exercices avec corriges -->
+    <div class="card mb-xl">
+      <div class="card-header">
+        <h4>&#128221; Corriges des exercices</h4>
+      </div>
+      <div class="card-body">
+        <p class="mb-lg">Reponses de l'activite pratique :</p>
+
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Question</th>
+                <th>Reponse</th>
+                <th>Explication</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Code vulnerable</td>
+                <td><code>innerHTML = username</code></td>
+                <td>innerHTML insere le HTML sans echappement</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Type XSS dangereux</td>
+                <td>XSS Stocke</td>
+                <td>Affecte tous les visiteurs, pas juste un clic</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Nombre de vulnerabilites</td>
+                <td>2</td>
+                <td>innerHTML sur title et body (textContent/innerText sont safe)</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Correction</td>
+                <td><code>textContent</code></td>
+                <td>Affiche comme texte brut, pas comme HTML</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Bonnes pratiques</td>
+                <td>A, B, D</td>
+                <td>Echappement + CSP + HttpOnly. Pas que client !</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Header HTTP</td>
+                <td>Content-Security-Policy</td>
+                <td>Definit les sources autorisees pour scripts, etc.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conseils pedagogiques -->
+    <div class="card card-info mb-xl">
+      <div class="card-header">
+        <h4>&#128161; Conseils pedagogiques</h4>
+      </div>
+      <div class="card-body">
+        <ul class="checklist">
+          <li class="checklist-item"><strong>Ne pas effrayer :</strong> XSS est serieux mais evitable avec de bonnes pratiques</li>
+          <li class="checklist-item"><strong>Contexte ethique :</strong> Rappeler que tester sur des sites sans autorisation est ILLEGAL</li>
+          <li class="checklist-item"><strong>Payloads simples :</strong> Utiliser uniquement des alert() et du HTML basique</li>
+          <li class="checklist-item"><strong>Pas de vol reel :</strong> Ne pas montrer d'exfiltration vers des serveurs externes</li>
+          <li class="checklist-item"><strong>Questions :</strong> Encourager les eleves a poser des questions</li>
+          <li class="checklist-item"><strong>Pratique :</strong> Laisser les eleves experimenter dans la zone de test</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Ressources supplementaires -->
+    <div class="card">
+      <div class="card-header">
+        <h4>&#128279; Ressources supplementaires</h4>
+      </div>
+      <div class="card-body">
+        <ul>
+          <li class="mb-sm"><a href="https://owasp.org/www-community/attacks/xss/" target="_blank">OWASP - XSS Attacks</a></li>
+          <li class="mb-sm"><a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html" target="_blank">OWASP - XSS Prevention Cheat Sheet</a></li>
+          <li class="mb-sm"><a href="https://portswigger.net/web-security/cross-site-scripting" target="_blank">PortSwigger - XSS Tutorial</a></li>
+          <li class="mb-sm"><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP" target="_blank">MDN - Content Security Policy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between mt-xl">
+      <a href="/admin" class="btn">&#8592; Panneau Admin</a>
+      <a href="/chapters" class="btn btn-primary">Page d'accueil &#8594;</a>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

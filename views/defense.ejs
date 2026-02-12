@@ -3,80 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - XSS VADI</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Contre-mesures XSS - XSS VADI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <% const currentPage = 'defense'; %>
   <%- include('partials/navbar') %>
 
-  <div class="alert alert-success mb-0 text-center" role="alert">
-    <strong>🛡️ SECTION DÉFENSE :</strong> Apprenez à protéger vos applications contre les attaques XSS
+  <!-- Banner -->
+  <div class="alert alert-success alert-banner">
+    <span class="alert-icon">&#128737;</span>
+    <div class="alert-content">
+      <p class="alert-message"><strong>SECTION DEFENSE :</strong> Apprenez a proteger vos applications contre les attaques XSS</p>
+    </div>
   </div>
 
-  <main class="container my-5">
-    <h1 class="mb-4">🛡️ Défenses contre les attaques XSS</h1>
+  <main class="container py-xl">
+    <h1 class="mb-md">&#128737; Contre-mesures XSS pour Developpeurs</h1>
 
-    <div class="alert alert-info">
-      <h5>Objectif de cette section</h5>
-      <p class="mb-0">
-        Maintenant que vous avez vu comment fonctionnent les attaques XSS, il est crucial de comprendre
-        comment s'en protéger. Voici les principales techniques de défense.
-      </p>
+    <!-- Objectif -->
+    <div class="chapter-objective mb-xl">
+      <span class="chapter-objective-icon">&#127919;</span>
+      <div>
+        <strong class="text-primary">Objectif :</strong>
+        <span class="text-secondary">Maitriser les techniques de defense essentielles contre XSS, adaptees au niveau dev junior.</span>
+      </div>
     </div>
 
-    <!-- 1. Échappement -->
-    <div class="card mb-4">
-      <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">1. Échappement (Escaping)</h4>
-      </div>
-      <div class="card-body">
-        <h5>Principe</h5>
-        <p>
-          L'échappement consiste à convertir les caractères spéciaux HTML en entités HTML afin qu'ils
-          soient affichés comme du texte plutôt que d'être interprétés comme du code.
-        </p>
+    <!-- Tabs navigation -->
+    <div class="tabs">
+      <ul class="tabs-list">
+        <li><button class="tabs-trigger active" data-tab="tab-escape" onclick="switchTab(this)">&#128221; Echappement</button></li>
+        <li><button class="tabs-trigger" data-tab="tab-sanitize" onclick="switchTab(this)">&#128295; Sanitization</button></li>
+        <li><button class="tabs-trigger" data-tab="tab-csp" onclick="switchTab(this)">&#128274; CSP</button></li>
+        <li><button class="tabs-trigger" data-tab="tab-cookies" onclick="switchTab(this)">&#127850; Cookies</button></li>
+        <li><button class="tabs-trigger" data-tab="tab-checklist" onclick="switchTab(this)">&#10003; Checklist</button></li>
+      </ul>
+    </div>
 
-        <h5>Conversions</h5>
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Caractère</th>
-              <th>Entité HTML</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>&lt;</code></td>
-              <td><code>&amp;lt;</code></td>
-              <td>Ouvre une balise HTML</td>
-            </tr>
-            <tr>
-              <td><code>&gt;</code></td>
-              <td><code>&amp;gt;</code></td>
-              <td>Ferme une balise HTML</td>
-            </tr>
-            <tr>
-              <td><code>&amp;</code></td>
-              <td><code>&amp;amp;</code></td>
-              <td>Caractère d'échappement</td>
-            </tr>
-            <tr>
-              <td><code>"</code></td>
-              <td><code>&amp;quot;</code></td>
-              <td>Guillemet double</td>
-            </tr>
-            <tr>
-              <td><code>'</code></td>
-              <td><code>&amp;#x27;</code></td>
-              <td>Apostrophe</td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Tab 1: Echappement -->
+    <div class="tabs-content active" id="tab-escape">
+      <div class="card card-primary mb-lg">
+        <div class="card-header">
+          <h4>&#128221; Echappement (Output Encoding)</h4>
+        </div>
+        <div class="card-body">
+          <h5 class="mb-md">Principe</h5>
+          <p>L'echappement convertit les caracteres speciaux HTML en entites inoffensives. C'est la defense N.1 contre XSS.</p>
 
-        <h5>Exemple de code</h5>
-        <pre><code>// JavaScript (côté client)
+          <div class="table-wrapper mb-lg">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Caractere</th>
+                  <th>Entite HTML</th>
+                  <th>Raison</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>&lt;</code></td>
+                  <td><code>&amp;lt;</code></td>
+                  <td>Empeche l'ouverture de balises</td>
+                </tr>
+                <tr>
+                  <td><code>&gt;</code></td>
+                  <td><code>&amp;gt;</code></td>
+                  <td>Empeche la fermeture de balises</td>
+                </tr>
+                <tr>
+                  <td><code>&amp;</code></td>
+                  <td><code>&amp;amp;</code></td>
+                  <td>Empeche l'injection d'entites</td>
+                </tr>
+                <tr>
+                  <td><code>"</code></td>
+                  <td><code>&amp;quot;</code></td>
+                  <td>Securise les attributs</td>
+                </tr>
+                <tr>
+                  <td><code>'</code></td>
+                  <td><code>&amp;#x27;</code></td>
+                  <td>Securise les attributs simples</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h5 class="mb-md">En JavaScript (cote client)</h5>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">JavaScript</span>
+            </div>
+            <pre><code>// Fonction d'echappement manuelle
 function escapeHtml(text) {
   const map = {
     '&': '&amp;',
@@ -88,177 +110,343 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-// EJS (côté serveur)
-// Utiliser <%= %> au lieu de <%- %>
-&lt;%= userInput %&gt;  // SAFE : échappe le HTML
-&lt;%- userInput %&gt;  // UNSAFE : rend le HTML tel quel</code></pre>
+// MEILLEURE SOLUTION : Utiliser textContent
+element.textContent = userInput;  // SECURISE
+// PAS : element.innerHTML = userInput;  // VULNERABLE</code></pre>
+          </div>
+
+          <h5 class="mb-md mt-lg">En EJS (cote serveur)</h5>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">EJS</span>
+            </div>
+            <pre><code>&lt;!-- SECURISE : echappe automatiquement --&gt;
+&lt;p&gt;&lt;%= userInput %&gt;&lt;/p&gt;
+
+&lt;!-- VULNERABLE : rendu brut --&gt;
+&lt;p&gt;&lt;%- userInput %&gt;&lt;/p&gt;</code></pre>
+          </div>
+
+          <div class="alert alert-warning mt-lg">
+            <span class="alert-icon">&#128161;</span>
+            <div class="alert-content">
+              <p class="alert-title">Regle d'or</p>
+              <p class="alert-message">Toujours utiliser <code>&lt;%= %&gt;</code> en EJS et <code>textContent</code> en JS, sauf si vous avez une tres bonne raison de faire autrement.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 2. Sanitization -->
-    <div class="card mb-4">
-      <div class="card-header bg-success text-white">
-        <h4 class="mb-0">2. Sanitization (Assainissement)</h4>
-      </div>
-      <div class="card-body">
-        <h5>Principe</h5>
-        <p>
-          La sanitization permet d'autoriser certaines balises HTML (comme <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>)
-          tout en supprimant les éléments dangereux (scripts, événements, iframes, etc.).
-        </p>
+    <!-- Tab 2: Sanitization -->
+    <div class="tabs-content" id="tab-sanitize">
+      <div class="card card-success mb-lg">
+        <div class="card-header">
+          <h4>&#128295; Sanitization (Assainissement)</h4>
+        </div>
+        <div class="card-body">
+          <h5 class="mb-md">Quand utiliser la sanitization ?</h5>
+          <p>Quand vous DEVEZ autoriser du HTML (editeur riche, commentaires formates...) mais voulez bloquer le JavaScript.</p>
 
-        <h5>Bibliothèques recommandées</h5>
-        <ul>
-          <li><strong>DOMPurify</strong> (côté client) : <a href="https://github.com/cure53/DOMPurify" target="_blank">https://github.com/cure53/DOMPurify</a></li>
-          <li><strong>sanitize-html</strong> (côté serveur) : <a href="https://github.com/apostrophecms/sanitize-html" target="_blank">https://github.com/apostrophecms/sanitize-html</a></li>
-        </ul>
+          <div class="alert alert-info mb-lg">
+            <span class="alert-icon">&#128161;</span>
+            <div class="alert-content">
+              <p class="alert-message">Preferez toujours l'echappement. N'utilisez la sanitization que si du HTML est reellement necessaire.</p>
+            </div>
+          </div>
 
-        <h5>Exemple avec DOMPurify</h5>
-        <pre><code>// Inclure DOMPurify
-&lt;script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"&gt;&lt;/script&gt;
+          <h5 class="mb-md">DOMPurify (cote client)</h5>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">JavaScript</span>
+            </div>
+            <pre><code>// Installation via CDN
+&lt;script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"&gt;&lt;/script&gt;
 
 // Utilisation
-const dirty = '&lt;img src=x onerror=alert(1)&gt; &lt;b&gt;Texte en gras&lt;/b&gt;';
+const dirty = '&lt;img src=x onerror=alert(1)&gt; &lt;b&gt;Gras&lt;/b&gt;';
 const clean = DOMPurify.sanitize(dirty);
-// Résultat : '&lt;img src="x"&gt; &lt;b&gt;Texte en gras&lt;/b&gt;'
-// Le onerror a été supprimé !</code></pre>
+// Resultat: '&lt;img src="x"&gt; &lt;b&gt;Gras&lt;/b&gt;'
+// Le onerror a ete supprime !</code></pre>
+          </div>
 
-        <h5>Exemple avec sanitize-html (Node.js)</h5>
-        <pre><code>const sanitizeHtml = require('sanitize-html');
+          <h5 class="mb-md mt-lg">sanitize-html (Node.js)</h5>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">JavaScript</span>
+            </div>
+            <pre><code>const sanitizeHtml = require('sanitize-html');
 
 const dirty = '&lt;script&gt;alert("XSS")&lt;/script&gt;&lt;p&gt;Hello&lt;/p&gt;';
 const clean = sanitizeHtml(dirty, {
-  allowedTags: ['p', 'b', 'i', 'em', 'strong'],
-  allowedAttributes: {}
+  allowedTags: ['p', 'b', 'i', 'em', 'strong', 'a'],
+  allowedAttributes: {
+    'a': ['href']  // Seulement href sur les liens
+  }
 });
-// Résultat : '&lt;p&gt;Hello&lt;/p&gt;'</code></pre>
+// Resultat: '&lt;p&gt;Hello&lt;/p&gt;'</code></pre>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 3. Content Security Policy -->
-    <div class="card mb-4">
-      <div class="card-header bg-warning">
-        <h4 class="mb-0">3. Content Security Policy (CSP)</h4>
-      </div>
-      <div class="card-body">
-        <h5>Principe</h5>
-        <p>
-          CSP est un en-tête HTTP qui permet de définir les sources autorisées pour le chargement
-          de scripts, styles, images, etc. Cela empêche l'exécution de scripts inline malveillants.
-        </p>
+    <!-- Tab 3: CSP -->
+    <div class="tabs-content" id="tab-csp">
+      <div class="card card-warning mb-lg">
+        <div class="card-header">
+          <h4>&#128274; Content Security Policy (CSP)</h4>
+        </div>
+        <div class="card-body">
+          <h5 class="mb-md">Qu'est-ce que CSP ?</h5>
+          <p>Un header HTTP qui definit les sources autorisees pour les scripts, styles, images, etc. Si un script ne vient pas d'une source autorisee, il ne s'execute pas.</p>
 
-        <h5>Exemple de configuration</h5>
-        <pre><code>// Express.js
-app.use((req, res, next) => {
+          <h5 class="mb-md mt-lg">Exemple basique</h5>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">Express.js</span>
+            </div>
+            <pre><code>app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'"
+    "default-src 'self'; " +
+    "script-src 'self' https://cdn.jsdelivr.net; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com"
   );
   next();
 });</code></pre>
+          </div>
 
-        <h5>Directives principales</h5>
-        <ul>
-          <li><code>default-src 'self'</code> : Autorise uniquement les ressources du même domaine</li>
-          <li><code>script-src 'self'</code> : Autorise les scripts uniquement du même domaine</li>
-          <li><code>script-src 'nonce-{random}'</code> : Autorise uniquement les scripts avec un nonce spécifique</li>
-          <li><code>script-src 'unsafe-inline'</code> : ⚠️ À éviter ! Autorise les scripts inline</li>
-        </ul>
+          <h5 class="mb-md mt-lg">Directives principales</h5>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Directive</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>default-src 'self'</code></td>
+                  <td>Par defaut, n'autorise que le meme domaine</td>
+                </tr>
+                <tr>
+                  <td><code>script-src 'self'</code></td>
+                  <td>Scripts uniquement du meme domaine</td>
+                </tr>
+                <tr>
+                  <td><code>script-src 'nonce-xxx'</code></td>
+                  <td>Scripts avec un nonce specifique uniquement</td>
+                </tr>
+                <tr>
+                  <td><code>script-src 'unsafe-inline'</code></td>
+                  <td><span class="badge badge-danger">A EVITER</span> Autorise les scripts inline</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-success mt-lg">
+            <span class="alert-icon">&#128161;</span>
+            <div class="alert-content">
+              <p class="alert-title">Conseil dev junior</p>
+              <p class="alert-message">Commencez par un CSP simple avec <code>default-src 'self'</code> puis ajoutez les sources necessaires au fur et a mesure.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 4. Cookies HttpOnly -->
-    <div class="card mb-4">
-      <div class="card-header bg-danger text-white">
-        <h4 class="mb-0">4. Cookies HttpOnly et Secure</h4>
-      </div>
-      <div class="card-body">
-        <h5>Principe</h5>
-        <p>
-          Les cookies marqués <code>HttpOnly</code> ne sont pas accessibles via JavaScript (<code>document.cookie</code>),
-          ce qui protège contre le vol de session via XSS.
-        </p>
+    <!-- Tab 4: Cookies -->
+    <div class="tabs-content" id="tab-cookies">
+      <div class="card card-danger mb-lg">
+        <div class="card-header">
+          <h4>&#127850; Cookies Securises</h4>
+        </div>
+        <div class="card-body">
+          <h5 class="mb-md">Attributs de securite des cookies</h5>
 
-        <h5>Exemple</h5>
-        <pre><code>// Express.js
-res.cookie('sessionId', 'abc123', {
-  httpOnly: true,  // Empêche l'accès via JavaScript
-  secure: true,    // Envoie uniquement via HTTPS
-  sameSite: 'strict' // Protection contre CSRF
-});</code></pre>
+          <div class="grid grid-2 gap-lg mb-lg">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="text-success mb-sm">HttpOnly</h5>
+                <p class="text-sm">Empeche l'acces au cookie via JavaScript (<code>document.cookie</code>).</p>
+                <p class="text-sm text-muted">Protection contre le vol de session via XSS.</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <h5 class="text-success mb-sm">Secure</h5>
+                <p class="text-sm">Le cookie n'est envoye que sur HTTPS.</p>
+                <p class="text-sm text-muted">Protection contre l'interception sur HTTP.</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <h5 class="text-success mb-sm">SameSite</h5>
+                <p class="text-sm">Controle l'envoi du cookie avec les requetes cross-site.</p>
+                <p class="text-sm text-muted">Protection contre CSRF. Valeurs: Strict, Lax, None.</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <h5 class="text-warning mb-sm">Path & Domain</h5>
+                <p class="text-sm">Limitent la portee du cookie.</p>
+                <p class="text-sm text-muted">Reduisent la surface d'attaque.</p>
+              </div>
+            </div>
+          </div>
 
-        <h5>⚠️ Note sur cette démo</h5>
-        <p class="alert alert-warning">
-          Dans cette application de démonstration, les cookies sont volontairement configurés avec
-          <code>httpOnly: false</code> pour permettre la démonstration de l'exfiltration.
-          <strong>En production, TOUJOURS utiliser httpOnly: true pour les cookies sensibles !</strong>
-        </p>
-      </div>
-    </div>
-
-    <!-- 5. Validation des entrées -->
-    <div class="card mb-4">
-      <div class="card-header bg-info text-white">
-        <h4 class="mb-0">5. Validation et filtrage des entrées</h4>
-      </div>
-      <div class="card-body">
-        <h5>Principe</h5>
-        <p>
-          Valider et filtrer toutes les entrées utilisateur côté serveur. Ne jamais faire confiance
-          aux données provenant du client.
-        </p>
-
-        <h5>Bonnes pratiques</h5>
-        <ul>
-          <li>Valider le type de données (nombre, email, URL, etc.)</li>
-          <li>Limiter la longueur des chaînes</li>
-          <li>Utiliser des listes blanches (whitelist) plutôt que des listes noires</li>
-          <li>Rejeter les entrées suspectes au lieu d'essayer de les "nettoyer"</li>
-        </ul>
-
-        <h5>Exemple</h5>
-        <pre><code>// Validation avec express-validator
-const { body, validationResult } = require('express-validator');
-
-app.post('/comment',
-  body('content').isLength({ min: 1, max: 500 }).trim().escape(),
-  (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    // Traitement...
+          <h5 class="mb-md">Exemple Express.js</h5>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-lang">JavaScript</span>
+            </div>
+            <pre><code>// Configuration session securisee
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,     // IMPORTANT: empeche document.cookie
+    secure: true,       // HTTPS uniquement (prod)
+    sameSite: 'strict', // Protection CSRF
+    maxAge: 3600000     // 1 heure
   }
-);</code></pre>
+}));
+
+// Cookie manuel securise
+res.cookie('token', value, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict'
+});</code></pre>
+          </div>
+
+          <div class="alert alert-danger mt-lg">
+            <span class="alert-icon">&#9888;</span>
+            <div class="alert-content">
+              <p class="alert-title">Note sur cette demo</p>
+              <p class="alert-message">Dans XSS VADI, HttpOnly est volontairement desactive pour montrer le vol de cookies. En production, TOUJOURS activer HttpOnly pour les cookies de session !</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Résumé -->
-    <div class="card border-success">
-      <div class="card-header bg-success text-white">
-        <h4 class="mb-0">✅ Checklist de sécurité</h4>
+    <!-- Tab 5: Checklist -->
+    <div class="tabs-content" id="tab-checklist">
+      <div class="card card-success mb-lg">
+        <div class="card-header">
+          <h4>&#10003; Checklist Securite XSS - Dev Junior</h4>
+        </div>
+        <div class="card-body">
+          <p class="mb-lg">Avant chaque commit et mise en production, verifiez ces points :</p>
+
+          <h5 class="mb-md">&#128221; Affichage des donnees</h5>
+          <ul class="checklist mb-lg">
+            <li class="checklist-item">J'utilise <code>textContent</code> (pas <code>innerHTML</code>) pour afficher du texte utilisateur</li>
+            <li class="checklist-item">En EJS, j'utilise <code>&lt;%= %&gt;</code> (pas <code>&lt;%- %&gt;</code>) pour les donnees utilisateur</li>
+            <li class="checklist-item">Si je dois utiliser <code>innerHTML</code>, je sanitize avec DOMPurify</li>
+            <li class="checklist-item">Je n'insere jamais de donnees utilisateur dans des balises <code>&lt;script&gt;</code></li>
+          </ul>
+
+          <h5 class="mb-md">&#128274; Validation</h5>
+          <ul class="checklist mb-lg">
+            <li class="checklist-item">Je valide les entrees cote SERVEUR (pas seulement cote client)</li>
+            <li class="checklist-item">J'utilise des listes blanches (whitelist) plutot que noires</li>
+            <li class="checklist-item">Je limite la longueur des champs de saisie</li>
+            <li class="checklist-item">Je rejette les entrees invalides au lieu d'essayer de les "nettoyer"</li>
+          </ul>
+
+          <h5 class="mb-md">&#127850; Cookies & Sessions</h5>
+          <ul class="checklist mb-lg">
+            <li class="checklist-item">Mes cookies de session ont le flag <code>HttpOnly</code></li>
+            <li class="checklist-item">Mes cookies sensibles ont le flag <code>Secure</code> en production</li>
+            <li class="checklist-item">J'utilise <code>SameSite=Strict</code> ou <code>Lax</code></li>
+          </ul>
+
+          <h5 class="mb-md">&#128274; Headers HTTP</h5>
+          <ul class="checklist mb-lg">
+            <li class="checklist-item">J'ai configure un Content-Security-Policy basique</li>
+            <li class="checklist-item">J'utilise <code>X-Content-Type-Options: nosniff</code></li>
+            <li class="checklist-item">J'ai <code>X-Frame-Options</code> pour eviter le clickjacking</li>
+          </ul>
+
+          <h5 class="mb-md">&#128214; Bonnes pratiques</h5>
+          <ul class="checklist">
+            <li class="checklist-item">J'utilise un framework moderne qui echappe par defaut (React, Vue, Angular)</li>
+            <li class="checklist-item">Je garde mes dependances a jour (npm audit)</li>
+            <li class="checklist-item">Je teste mes formulaires avec des payloads XSS basiques</li>
+            <li class="checklist-item">Je fais des revues de code avec focus securite</li>
+          </ul>
+        </div>
       </div>
-      <div class="card-body">
-        <ul class="mb-0">
-          <li>✅ Toujours échapper les entrées utilisateur avant affichage</li>
-          <li>✅ Utiliser des bibliothèques de sanitization pour le HTML riche</li>
-          <li>✅ Implémenter une Content Security Policy stricte</li>
-          <li>✅ Marquer les cookies sensibles comme HttpOnly et Secure</li>
-          <li>✅ Valider toutes les entrées côté serveur</li>
-          <li>✅ Utiliser des frameworks modernes qui échappent par défaut (React, Vue, Angular)</li>
-          <li>✅ Former les développeurs aux risques XSS</li>
-          <li>✅ Effectuer des audits de sécurité réguliers</li>
-        </ul>
+
+      <!-- Aide-memoire -->
+      <div class="card">
+        <div class="card-header">
+          <h4>&#128466; Aide-memoire rapide</h4>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2 gap-lg">
+            <div>
+              <h5 class="text-danger mb-md">&#10006; A NE PAS FAIRE</h5>
+              <div class="code-block">
+                <pre><code>// JavaScript
+el.innerHTML = userInput;
+el.outerHTML = userInput;
+document.write(userInput);
+eval(userInput);
+
+// EJS
+&lt;%- userInput %&gt;
+
+// Attributs
+&lt;div onclick="<%= userInput %>"&gt;</code></pre>
+              </div>
+            </div>
+            <div>
+              <h5 class="text-success mb-md">&#10003; A FAIRE</h5>
+              <div class="code-block">
+                <pre><code>// JavaScript
+el.textContent = userInput;
+el.innerText = userInput;
+el.setAttribute('data-x', userInput);
+
+// EJS
+&lt;%= userInput %&gt;
+
+// Sanitization si HTML necessaire
+DOMPurify.sanitize(userInput)</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="mt-4 text-center">
-      <a href="/chapters" class="btn btn-primary">Retour aux chapitres</a>
+    <!-- Navigation -->
+    <div class="flex justify-between mt-xl">
+      <a href="/activity" class="btn">&#8592; Activite pratique</a>
+      <a href="/chapters" class="btn btn-primary">Retour aux chapitres &#8594;</a>
     </div>
   </main>
 
   <%- include('partials/footer') %>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    function switchTab(button) {
+      // Deactivate all tabs
+      document.querySelectorAll('.tabs-trigger').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tabs-content').forEach(c => c.classList.remove('active'));
+
+      // Activate selected
+      button.classList.add('active');
+      const targetId = button.dataset.tab;
+      document.getElementById(targetId).classList.add('active');
+    }
+  </script>
 </body>
 </html>

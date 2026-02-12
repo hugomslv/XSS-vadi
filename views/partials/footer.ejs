@@ -1,5 +1,15 @@
-<footer class="bg-light text-center py-3 mt-5">
-  <p class="mb-0 text-muted">
-    XSS VADI - Démonstration pédagogique - Ne pas utiliser en production
-  </p>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <p class="footer-text">
+        &#128274; XSS VADI - Application pedagogique pour le module ICT-183
+      </p>
+      <div class="footer-links">
+        <a href="/defense">Defenses XSS</a>
+        <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+          <a href="/teacher-guide">Guide Enseignant</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
 </footer>

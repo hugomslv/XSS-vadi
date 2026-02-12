@@ -1,304 +1,193 @@
-# 🔓 XSS VADI - Démonstration Pédagogique
+# XSS VADI - Demonstration Pedagogique
 
-Application web de démonstration des vulnérabilités XSS (Cross-Site Scripting) à des fins pédagogiques.
+Application web de demonstration des vulnerabilites XSS (Cross-Site Scripting) pour le module ICT-183.
 
-## ⚠️ AVERTISSEMENT IMPORTANT
+## AVERTISSEMENT IMPORTANT
 
-**Cette application est VOLONTAIREMENT VULNÉRABLE.**
+**Cette application est VOLONTAIREMENT VULNERABLE.**
 
-- 🚫 **NE PAS déployer en production**
-- 🚫 **NE PAS utiliser sur Internet public**
-- ✅ **Usage UNIQUEMENT en environnement local contrôlé (salle de classe)**
-- ✅ **À des fins pédagogiques UNIQUEMENT**
-
-Cette application a été conçue pour enseigner les concepts de sécurité web dans un environnement contrôlé. Elle ne collecte PAS de vraies données sensibles, uniquement un token de démonstration appelé `demoToken`.
+- **NE PAS deployer en production**
+- **NE PAS utiliser sur Internet public**
+- **Usage UNIQUEMENT en environnement local controle (salle de classe)**
+- **A des fins pedagogiques UNIQUEMENT**
 
 ---
 
-## 📚 Objectifs pédagogiques
+## Demarrage rapide
 
-L'application permet de :
-1. Comprendre ce qu'est une faille XSS
-2. Observer comment elle se déclenche
-3. Voir les conséquences potentielles (exfiltration simulée)
-4. Apprendre les techniques de prévention et de défense
+### Prerequisites
+- Node.js (version 14+)
+- npm
 
----
+### Installation
 
-## 🚀 Installation et Démarrage
+```bash
+cd XSS-vadi
+npm install
+npm start
+```
 
-### Prérequis
-- Node.js (version 14 ou supérieure)
-- npm (installé avec Node.js)
+Le serveur affiche automatiquement l'URL reseau pour les eleves.
 
-### Étapes d'installation
+### Comptes
 
-1. **Cloner ou télécharger le projet**
-   ```bash
-   cd XSS-vadi
-   ```
-
-2. **Installer les dépendances**
-   ```bash
-   npm install
-   ```
-
-3. **Démarrer le serveur**
-   ```bash
-   npm start
-   ```
-
-   Le serveur démarrera sur le port 3000 et écoutera sur `0.0.0.0` (accessible depuis le réseau local).
-
-4. **Trouver votre adresse IP**
-
-   **Windows :**
-   ```bash
-   ipconfig
-   ```
-   Cherchez l'adresse IPv4 (ex: 192.168.1.10)
-
-   **macOS/Linux :**
-   ```bash
-   ifconfig
-   ```
-   ou
-   ```bash
-   ip addr show
-   ```
-
-5. **Accéder à l'application**
-   - **Localement :** http://localhost:3000
-   - **Depuis le réseau :** http://[VOTRE_IP]:3000
-   - Exemple : http://192.168.1.10:3000
+| Role | Login | Mot de passe |
+|------|-------|--------------|
+| Eleve | N'importe quel prenom | N'importe quel mdp |
+| Admin | `admin` | `admin**123` |
 
 ---
 
-## 👥 Comptes de connexion
+## Pages de l'application
 
-### Compte Élève (Utilisateur)
-- **Nom d'utilisateur :** N'importe quel prénom (ex: Hugo, Sarah, Marc...)
-- **Mot de passe :** `toto`
-
-### Compte Administrateur
-- **Login :** `admin`
-- **Mot de passe :** `admin**123`
-
----
-
-## 📖 Structure de l'application
-
-### Pages principales
-
-1. **`/login`** - Page de connexion
-2. **`/chapters`** - Liste des chapitres pédagogiques
-3. **`/chapter/:id`** - Détail d'un chapitre avec exercices
-4. **`/defense`** - Guide des défenses contre XSS
-5. **`/admin`** - Panneau administrateur (réservé admin)
-
-### Chapitres disponibles
-
-1. **Chapitre 1 :** Introduction - Injection HTML basique
-2. **Chapitre 2 :** XSS simple avec alert()
-3. **Chapitre 3 :** XSS stocké (Stored XSS)
-4. **Chapitre 4 :** Exfiltration de données (simulation)
-5. **Chapitre 5 :** Défenses contre XSS
+| Page | URL | Description |
+|------|-----|-------------|
+| Connexion | `/login` | Page de connexion |
+| Accueil | `/chapters` | Liste des chapitres et parcours pedagogique |
+| Chapitre | `/chapter/:id` | Contenu de cours + zone de test XSS |
+| Demo Interactive | `/demo` | Comparaison vulnerable vs securise en temps reel |
+| Activite Pratique | `/activity` | Quiz et exercices guides (15-20 min) |
+| Contre-mesures | `/defense` | Techniques de defense pour dev junior |
+| Guide Enseignant | `/teacher-guide` | Guide complet pour animer le cours (admin) |
+| Panel Admin | `/admin` | Gestion captures et commentaires (admin) |
 
 ---
 
-## 🧪 Fonctionnalités pédagogiques
+## Deroulement recommande du cours (45-60 min)
 
-### Pour les élèves
+### 1. Introduction (10 min)
+- Expliquer XSS et ses types (Reflechi, Stocke, DOM-based)
+- Presenter les risques
+- Support : Chapitres 1-2
 
-- **Zone de test :** Chaque chapitre dispose d'une zone pour tester des payloads XSS
-- **Mode SAFE/UNSAFE :** Toggle pour observer la différence entre contenu échappé et non échappé
-- **Messages persistants :** Les posts sont sauvegardés et exécutés à chaque chargement (XSS stocké)
-- **Commentaires :** Section pour échanger sur les exercices
+### 2. Demo en direct (10 min)
+- Ouvrir `/demo` sur l'ecran projete
+- Tester des payloads simples
+- Montrer la difference vulnerable/securise
 
-### Pour l'administrateur
+### 3. Activite pratique (20 min)
+- Eleves sur `/activity`
+- 6 exercices avec timer integre
+- Circuler pour aider
 
-- **Commentaires globaux :** Publier des annonces visibles sur tous les chapitres
-- **Démo Rickroll :** Payload pré-configuré combinant distraction et exfiltration
-- **Panneau de captures :** Visualiser les `demoToken` exfiltrés
-- **Statistiques :** Vue d'ensemble de l'activité
+### 4. Contre-mesures (10 min)
+- Parcourir `/defense` ensemble
+- Insister sur la checklist dev junior
 
----
-
-## 🎯 Démonstration type "Rickroll"
-
-L'admin peut utiliser la fonctionnalité de démonstration Rickroll pour montrer :
-
-1. **Distraction visuelle :** Affichage d'une vidéo YouTube (Rickroll)
-2. **Exfiltration en arrière-plan :** Envoi du `demoToken` vers `/admin/collect`
-
-### Comment l'utiliser
-
-1. Se connecter en tant qu'admin
-2. Aller dans **Admin Panel** → **Démo Rickroll + Exfiltration**
-3. Copier le payload fourni
-4. Le coller dans un commentaire global
-5. Se connecter en tant qu'utilisateur (ou utiliser un autre navigateur)
-6. Visiter n'importe quel chapitre
-7. Observer : le rickroll apparaît ET le demoToken est capturé
-8. Vérifier les captures dans le panneau admin
-
-### ⚠️ Important
-
-- L'exfiltration capture UNIQUEMENT le `demoToken` (cookie de démonstration)
-- Aucune donnée sensible réelle n'est collectée
-- En situation réelle, un attaquant pourrait voler des cookies de session
+### 5. Synthese (5 min)
+- Recapituler les points cles
+- Questions/reponses
 
 ---
 
-## 🛡️ Techniques de défense enseignées
+## Script de demo rapide (5 min)
 
-L'application enseigne les principales défenses contre XSS :
-
-1. **Échappement (Escaping)**
-   - Conversion des caractères spéciaux HTML
-   - Utilisation de `<%= %>` au lieu de `<%- %>` en EJS
-
-2. **Sanitization**
-   - DOMPurify (côté client)
-   - sanitize-html (côté serveur)
-
-3. **Content Security Policy (CSP)**
-   - Limitation des sources de scripts autorisés
-   - Blocage des scripts inline
-
-4. **Cookies HttpOnly et Secure**
-   - Protection des cookies de session
-   - Empêcher l'accès JavaScript
-
-5. **Validation des entrées**
-   - Vérification côté serveur
-   - Utilisation de listes blanches
-
-Consultez la page **`/defense`** pour plus de détails.
+1. Ouvrir `/demo`
+2. Taper : `<b>Hello</b>` - Montrer HTML interprete vs texte brut
+3. Taper : `<img src=x onerror="alert('XSS')">` - Montrer l'alerte
+4. Expliquer : "En production, ce serait du vol de donnees"
+5. Conclure : "Toujours echapper les donnees utilisateur"
 
 ---
 
-## 🗂️ Structure du projet
+## Payloads de test (pedagogiques)
+
+```html
+<!-- HTML basique -->
+<strong>Texte en gras</strong>
+<em>Texte en italique</em>
+
+<!-- Alert inoffensive -->
+<script>alert('XSS Demo')</script>
+
+<!-- Via evenement (fonctionne avec innerHTML) -->
+<img src="x" onerror="alert('XSS via image')">
+```
+
+---
+
+## Techniques de defense enseignees
+
+1. **Echappement** - textContent au lieu de innerHTML, <%= au lieu de <%- en EJS
+2. **Sanitization** - DOMPurify (client), sanitize-html (serveur)
+3. **CSP** - Content-Security-Policy header
+4. **Cookies** - HttpOnly, Secure, SameSite
+5. **Validation** - Cote serveur, listes blanches
+
+---
+
+## Structure du projet
 
 ```
 XSS-vadi/
-├── server.js                 # Serveur Express principal
-├── package.json              # Dépendances npm
-├── data.json                 # Stockage des données (JSON)
-├── README.md                 # Ce fichier
-├── routes/                   # Routes Express
-│   ├── auth.js              # Authentification (login/logout)
-│   ├── chapters.js          # Gestion des chapitres
-│   └── admin.js             # Panel administrateur
-├── services/                 # Services métier
-│   └── jsonStore.js         # Gestion du fichier JSON
-├── views/                    # Templates EJS
+├── server.js           # Serveur Express
+├── package.json        # Dependances
+├── data.json           # Base de donnees JSON
+├── CLAUDE.md           # Regles du projet
+├── README.md           # Ce fichier
+├── routes/
+│   ├── auth.js         # Authentification
+│   ├── chapters.js     # Chapitres
+│   └── admin.js        # Panel admin
+├── services/
+│   └── jsonStore.js    # Persistance
+├── views/
 │   ├── login.ejs
 │   ├── chapters.ejs
 │   ├── chapter.ejs
-│   ├── defense.ejs
-│   ├── 404.ejs
-│   ├── 403.ejs
-│   ├── admin/
-│   │   ├── panel.ejs
-│   │   └── demo-rickroll.ejs
+│   ├── demo.ejs        # Demo interactive
+│   ├── activity.ejs    # Activite pratique
+│   ├── defense.ejs     # Contre-mesures
+│   ├── teacher-guide.ejs # Guide prof
+│   ├── admin/panel.ejs
 │   └── partials/
-│       ├── navbar.ejs
-│       └── footer.ejs
-└── public/                   # Fichiers statiques
-    └── css/
-        └── style.css
+└── public/
+    ├── css/style.css   # Design system
+    └── js/app.js       # JavaScript client
 ```
 
 ---
 
-## 🔧 Développement
+## Depannage
 
-### Mode développement avec auto-reload
+### Le serveur ne demarre pas
+- Verifier que le port 3000 n'est pas utilise
+- Essayer `npm run dev` pour voir les erreurs
+
+### Les eleves ne peuvent pas se connecter
+- Verifier le pare-feu (autoriser port 3000)
+- Verifier que tous sont sur le meme reseau
+- Utiliser l'IP affichee au demarrage du serveur
+
+### Reinitialiser les donnees
+Supprimer `data.json` et redemarrer le serveur.
+
+---
+
+## Developpement
 
 ```bash
-npm install -g nodemon
+# Mode developpement avec auto-reload
 npm run dev
+
+# Linter (si configure)
+npm run lint
 ```
 
-### Réinitialiser les données
-
-Supprimer le fichier `data.json` et redémarrer le serveur. Les chapitres seront automatiquement recréés.
-
 ---
 
-## 🐛 Dépannage
+## Ressources
 
-### Le serveur ne démarre pas
-- Vérifiez que le port 3000 n'est pas déjà utilisé
-- Essayez de changer le port dans `server.js`
-
-### Les élèves ne peuvent pas se connecter depuis leur PC
-- Vérifiez que le serveur écoute bien sur `0.0.0.0`
-- Vérifiez le pare-feu Windows (autoriser le port 3000)
-- Vérifiez que vous êtes sur le même réseau
-
-### Erreur lors de l'écriture de data.json
-- Vérifiez les permissions d'écriture dans le dossier
-- Supprimez le fichier `data.json.tmp` s'il existe
-
----
-
-## 📝 Utilisation en classe
-
-### Scénario pédagogique suggéré
-
-1. **Introduction (15 min)**
-   - Présenter les concepts de sécurité web
-   - Expliquer ce qu'est une faille XSS
-
-2. **Chapitres 1-2 (30 min)**
-   - Les élèves explorent l'injection HTML et les XSS simples
-   - Essayer différents payloads
-
-3. **Chapitre 3 (20 min)**
-   - Comprendre la différence entre XSS réfléchi et stocké
-   - Observer la persistance
-
-4. **Chapitre 4 + Démo (30 min)**
-   - L'enseignant fait une démonstration de l'exfiltration
-   - Utiliser le Rickroll pour illustrer
-   - Montrer les captures dans l'admin
-
-5. **Défenses (30 min)**
-   - Consulter la page `/defense`
-   - Comparer mode SAFE vs UNSAFE
-   - Discuter des bonnes pratiques
-
-6. **Conclusion (15 min)**
-   - Quiz ou questions-réponses
-   - Insister sur l'importance de la sécurité
-
----
-
-## 📚 Ressources complémentaires
-
-- [OWASP XSS Guide](https://owasp.org/www-community/attacks/xss/)
+- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
+- [MDN - Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
 - [DOMPurify](https://github.com/cure53/DOMPurify)
-- [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 
 ---
 
-## 📄 Licence
+## Licence
 
-MIT - Usage pédagogique uniquement
-
----
-
-## 🤝 Contribution
-
-Cette application est destinée à un usage pédagogique local. N'hésitez pas à l'adapter à vos besoins de formation.
+MIT - Usage pedagogique uniquement
 
 ---
 
-## ✨ Crédits
-
-Développé pour l'enseignement de la sécurité web en environnement scolaire contrôlé.
-
-**Rappelez-vous :** La connaissance en sécurité doit être utilisée de manière éthique et responsable ! 🛡️
+**Rappel :** La connaissance en securite doit etre utilisee de maniere ethique et responsable !

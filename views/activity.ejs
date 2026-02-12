@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activite Pratique XSS - XSS VADI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <% const currentPage = 'activity'; %>
+  <%- include('partials/navbar') %>
+
+  <main class="container py-xl">
+    <!-- Header avec timer -->
+    <div class="flex justify-between items-center mb-lg">
+      <div>
+        <h1 class="mb-sm">&#127919; Activite Pratique XSS</h1>
+        <p class="text-secondary">Duree estimee : 15-20 minutes</p>
+      </div>
+      <div class="flex items-center gap-md">
+        <div class="timer" id="timer">20:00</div>
+        <button class="btn btn-sm" onclick="toggleTimer()" id="timerBtn">&#9208; Pause</button>
+      </div>
+    </div>
+
+    <!-- Progression -->
+    <div class="card mb-lg">
+      <div class="card-body">
+        <div class="flex justify-between items-center mb-sm">
+          <span class="text-sm font-bold">Progression</span>
+          <span class="text-sm" id="progressText">0 / 6 exercices</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stepper -->
+    <div class="stepper mb-xl" id="stepper">
+      <div class="stepper-step active">
+        <div class="stepper-indicator">1</div>
+        <span class="stepper-label">Identifier</span>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-indicator">2</div>
+        <span class="stepper-label">Comprendre</span>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-indicator">3</div>
+        <span class="stepper-label">Analyser</span>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-indicator">4</div>
+        <span class="stepper-label">Corriger</span>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-indicator">5</div>
+        <span class="stepper-label">Appliquer</span>
+      </div>
+      <div class="stepper-step">
+        <div class="stepper-indicator">6</div>
+        <span class="stepper-label">Synthese</span>
+      </div>
+    </div>
+
+    <!-- Exercice 1 : Identifier le code vulnerable -->
+    <div class="quiz-question" id="exercise1">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">1</div>
+        <div>
+          <h4 class="mb-0">Repere le code vulnerable</h4>
+          <p class="text-sm text-secondary mb-0">Cliquez sur la ligne qui contient une faille XSS</p>
+        </div>
+      </div>
+
+      <div class="code-block mb-md">
+        <div class="code-block-header">
+          <span class="code-block-lang">JavaScript</span>
+        </div>
+        <pre><code><span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this, 1)">const username = document.getElementById('name').value;</span>
+<span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this, 1)">const sanitized = escapeHtml(username);</span>
+<span class="code-spot" data-vulnerable="true" onclick="checkCodeSpot(this, 1)">document.getElementById('output').innerHTML = username;</span>
+<span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this, 1)">console.log('User:', sanitized);</span></code></pre>
+      </div>
+
+      <div class="alert hidden" id="feedback1"></div>
+    </div>
+
+    <!-- Exercice 2 : QCM Types de XSS -->
+    <div class="quiz-question" id="exercise2">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">2</div>
+        <div>
+          <h4 class="mb-0">Types de XSS</h4>
+          <p class="text-sm text-secondary mb-0">Quel type de XSS est le plus dangereux car il affecte tous les visiteurs ?</p>
+        </div>
+      </div>
+
+      <div class="quiz-options">
+        <div class="quiz-option" data-value="reflected" onclick="selectQuizOption(this, 2)">
+          <span class="quiz-option-letter">A</span>
+          <span>XSS Reflechi (Reflected XSS)</span>
+        </div>
+        <div class="quiz-option" data-value="stored" onclick="selectQuizOption(this, 2)">
+          <span class="quiz-option-letter">B</span>
+          <span>XSS Stocke (Stored XSS)</span>
+        </div>
+        <div class="quiz-option" data-value="dom" onclick="selectQuizOption(this, 2)">
+          <span class="quiz-option-letter">C</span>
+          <span>XSS DOM-based</span>
+        </div>
+        <div class="quiz-option" data-value="self" onclick="selectQuizOption(this, 2)">
+          <span class="quiz-option-letter">D</span>
+          <span>Self-XSS</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-md" onclick="checkQuiz(2, 'stored')">Valider ma reponse</button>
+      <div class="alert hidden mt-md" id="feedback2"></div>
+    </div>
+
+    <!-- Exercice 3 : Identifier plusieurs vulnerabilites -->
+    <div class="quiz-question" id="exercise3">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">3</div>
+        <div>
+          <h4 class="mb-0">Analyse de code</h4>
+          <p class="text-sm text-secondary mb-0">Combien de vulnerabilites XSS contient ce code ?</p>
+        </div>
+      </div>
+
+      <div class="code-block mb-md">
+        <div class="code-block-header">
+          <span class="code-block-lang">JavaScript</span>
+        </div>
+        <pre><code>function displayComment(comment) {
+  // Ligne 1
+  document.querySelector('.title').innerHTML = comment.title;
+  // Ligne 2
+  document.querySelector('.author').textContent = comment.author;
+  // Ligne 3
+  document.querySelector('.body').innerHTML = comment.body;
+  // Ligne 4
+  document.querySelector('.date').innerText = comment.date;
+}</code></pre>
+      </div>
+
+      <div class="quiz-options">
+        <div class="quiz-option" data-value="1" onclick="selectQuizOption(this, 3)">
+          <span class="quiz-option-letter">A</span>
+          <span>1 vulnerabilite</span>
+        </div>
+        <div class="quiz-option" data-value="2" onclick="selectQuizOption(this, 3)">
+          <span class="quiz-option-letter">B</span>
+          <span>2 vulnerabilites</span>
+        </div>
+        <div class="quiz-option" data-value="3" onclick="selectQuizOption(this, 3)">
+          <span class="quiz-option-letter">C</span>
+          <span>3 vulnerabilites</span>
+        </div>
+        <div class="quiz-option" data-value="4" onclick="selectQuizOption(this, 3)">
+          <span class="quiz-option-letter">D</span>
+          <span>4 vulnerabilites</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-md" onclick="checkQuiz(3, '2')">Valider ma reponse</button>
+      <div class="alert hidden mt-md" id="feedback3"></div>
+    </div>
+
+    <!-- Exercice 4 : Corriger le code -->
+    <div class="quiz-question" id="exercise4">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">4</div>
+        <div>
+          <h4 class="mb-0">Corrige ce code</h4>
+          <p class="text-sm text-secondary mb-0">Quelle est la correction appropriee pour ce code vulnerable ?</p>
+        </div>
+      </div>
+
+      <div class="code-block mb-md">
+        <div class="code-block-header">
+          <span class="code-block-lang">Code vulnerable</span>
+          <span class="badge badge-danger">VULNERABLE</span>
+        </div>
+        <pre><code>element.innerHTML = userInput;</code></pre>
+      </div>
+
+      <div class="quiz-options">
+        <div class="quiz-option" data-value="a" onclick="selectQuizOption(this, 4)">
+          <span class="quiz-option-letter">A</span>
+          <code>element.innerHTML = escape(userInput);</code>
+        </div>
+        <div class="quiz-option" data-value="b" onclick="selectQuizOption(this, 4)">
+          <span class="quiz-option-letter">B</span>
+          <code>element.textContent = userInput;</code>
+        </div>
+        <div class="quiz-option" data-value="c" onclick="selectQuizOption(this, 4)">
+          <span class="quiz-option-letter">C</span>
+          <code>element.innerHTML = userInput.replace('script', '');</code>
+        </div>
+        <div class="quiz-option" data-value="d" onclick="selectQuizOption(this, 4)">
+          <span class="quiz-option-letter">D</span>
+          <code>element.value = userInput;</code>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-md" onclick="checkQuiz(4, 'b')">Valider ma reponse</button>
+      <div class="alert hidden mt-md" id="feedback4"></div>
+    </div>
+
+    <!-- Exercice 5 : Contre-mesures -->
+    <div class="quiz-question" id="exercise5">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">5</div>
+        <div>
+          <h4 class="mb-0">Contre-mesures</h4>
+          <p class="text-sm text-secondary mb-0">Quelles sont les bonnes pratiques pour prevenir XSS ? (plusieurs reponses)</p>
+        </div>
+      </div>
+
+      <div class="quiz-options" id="quiz5Options">
+        <div class="quiz-option" data-value="escape" data-correct="true" onclick="toggleMultiOption(this)">
+          <span class="quiz-option-letter">A</span>
+          <span>Echapper les donnees utilisateur avant affichage</span>
+        </div>
+        <div class="quiz-option" data-value="csp" data-correct="true" onclick="toggleMultiOption(this)">
+          <span class="quiz-option-letter">B</span>
+          <span>Implementer une Content Security Policy (CSP)</span>
+        </div>
+        <div class="quiz-option" data-value="client" data-correct="false" onclick="toggleMultiOption(this)">
+          <span class="quiz-option-letter">C</span>
+          <span>Valider uniquement cote client (JavaScript)</span>
+        </div>
+        <div class="quiz-option" data-value="httponly" data-correct="true" onclick="toggleMultiOption(this)">
+          <span class="quiz-option-letter">D</span>
+          <span>Utiliser HttpOnly pour les cookies sensibles</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-md" onclick="checkMultiQuiz(5)">Valider mes reponses</button>
+      <div class="alert hidden mt-md" id="feedback5"></div>
+    </div>
+
+    <!-- Exercice 6 : Synthese -->
+    <div class="quiz-question" id="exercise6">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">6</div>
+        <div>
+          <h4 class="mb-0">Synthese</h4>
+          <p class="text-sm text-secondary mb-0">Quel header HTTP permet de limiter les sources de scripts autorisees ?</p>
+        </div>
+      </div>
+
+      <div class="quiz-options">
+        <div class="quiz-option" data-value="cors" onclick="selectQuizOption(this, 6)">
+          <span class="quiz-option-letter">A</span>
+          <span>Access-Control-Allow-Origin</span>
+        </div>
+        <div class="quiz-option" data-value="xframe" onclick="selectQuizOption(this, 6)">
+          <span class="quiz-option-letter">B</span>
+          <span>X-Frame-Options</span>
+        </div>
+        <div class="quiz-option" data-value="csp" onclick="selectQuizOption(this, 6)">
+          <span class="quiz-option-letter">C</span>
+          <span>Content-Security-Policy</span>
+        </div>
+        <div class="quiz-option" data-value="xss" onclick="selectQuizOption(this, 6)">
+          <span class="quiz-option-letter">D</span>
+          <span>X-XSS-Protection</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-md" onclick="checkQuiz(6, 'csp')">Valider ma reponse</button>
+      <div class="alert hidden mt-md" id="feedback6"></div>
+    </div>
+
+    <!-- Resultats finaux -->
+    <div class="card card-success hidden" id="resultsCard">
+      <div class="card-header">
+        <h4>&#127942; Resultats</h4>
+      </div>
+      <div class="card-body">
+        <div class="score-display">
+          <div class="score-circle">
+            <span class="score-value" id="finalScore">0</span>
+            <span class="score-label">/ 6</span>
+          </div>
+          <h3 id="resultMessage">Calcul en cours...</h3>
+        </div>
+
+        <h4 class="mb-md">&#128218; Points cles a retenir</h4>
+        <ul class="checklist">
+          <li class="checklist-item">XSS permet d'executer du code malveillant dans le navigateur d'un utilisateur</li>
+          <li class="checklist-item">Le XSS Stocke est le plus dangereux car il affecte tous les visiteurs</li>
+          <li class="checklist-item">Toujours utiliser textContent au lieu de innerHTML pour afficher des donnees utilisateur</li>
+          <li class="checklist-item">Les contre-mesures incluent : echappement, CSP, HttpOnly, validation serveur</li>
+          <li class="checklist-item">Content-Security-Policy permet de limiter les sources de scripts autorisees</li>
+        </ul>
+
+        <div class="flex justify-center gap-md mt-xl">
+          <button class="btn" onclick="resetActivity()">&#128260; Recommencer</button>
+          <a href="/defense" class="btn btn-primary">&#128737; Voir les defenses</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between mt-xl">
+      <a href="/demo" class="btn">&#8592; Retour a la demo</a>
+      <a href="/defense" class="btn btn-primary">Contre-mesures &#8594;</a>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // State
+    let score = 0;
+    let completed = [false, false, false, false, false, false];
+    let selectedAnswers = {};
+    let timerInstance = null;
+    let timerPaused = false;
+
+    // Timer
+    const timerElement = document.getElementById('timer');
+    timerInstance = new Timer(timerElement, 20 * 60, () => {
+      ToastManager.warning('Temps ecoule ! Vous pouvez continuer a votre rythme.', 5000);
+    });
+    timerInstance.start();
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerBtn');
+      if (timerPaused) {
+        timerInstance.resume();
+        btn.innerHTML = '&#9208; Pause';
+        timerPaused = false;
+      } else {
+        timerInstance.pause();
+        btn.innerHTML = '&#9654; Reprendre';
+        timerPaused = true;
+      }
+    }
+
+    // Update progress
+    function updateProgress() {
+      const completedCount = completed.filter(Boolean).length;
+      const percent = (completedCount / 6) * 100;
+
+      document.getElementById('progressBar').style.width = `${percent}%`;
+      document.getElementById('progressText').textContent = `${completedCount} / 6 exercices`;
+
+      // Update stepper
+      const steps = document.querySelectorAll('.stepper-step');
+      steps.forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (completed[index]) {
+          step.classList.add('completed');
+        }
+      });
+
+      // Find next incomplete
+      const nextIncomplete = completed.findIndex(c => !c);
+      if (nextIncomplete >= 0) {
+        steps[nextIncomplete].classList.add('active');
+      }
+
+      // Check if all completed
+      if (completedCount === 6) {
+        showResults();
+      }
+    }
+
+    // Code spot click (Exercise 1)
+    function checkCodeSpot(element, exerciseNum) {
+      if (completed[exerciseNum - 1]) return;
+
+      const allSpots = element.parentElement.querySelectorAll('.code-spot');
+      allSpots.forEach(spot => {
+        spot.classList.remove('vulnerable', 'safe');
+        if (spot.dataset.vulnerable === 'true') {
+          spot.classList.add('vulnerable');
+        } else {
+          spot.classList.add('safe');
+        }
+      });
+
+      const isCorrect = element.dataset.vulnerable === 'true';
+      const feedback = document.getElementById(`feedback${exerciseNum}`);
+      feedback.classList.remove('hidden', 'alert-success', 'alert-danger');
+
+      if (isCorrect) {
+        score++;
+        feedback.className = 'alert alert-success';
+        feedback.innerHTML = '<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">Correct ! La ligne <code>innerHTML = username</code> est vulnerable car elle insere le contenu utilisateur sans echappement.</p></div>';
+        ToastManager.success('Bonne reponse !', 2000);
+      } else {
+        feedback.className = 'alert alert-danger';
+        feedback.innerHTML = '<span class="alert-icon">&#10006;</span><div class="alert-content"><p class="alert-message">Incorrect. La ligne vulnerable est <code>innerHTML = username</code> car elle insere directement le contenu utilisateur.</p></div>';
+        ToastManager.danger('Mauvaise reponse', 2000);
+      }
+
+      completed[exerciseNum - 1] = true;
+      updateProgress();
+    }
+
+    // Quiz option selection
+    function selectQuizOption(element, exerciseNum) {
+      if (completed[exerciseNum - 1]) return;
+
+      const options = element.parentElement.querySelectorAll('.quiz-option');
+      options.forEach(opt => opt.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedAnswers[exerciseNum] = element.dataset.value;
+    }
+
+    // Multi-select toggle
+    function toggleMultiOption(element) {
+      if (completed[4]) return;
+      element.classList.toggle('selected');
+    }
+
+    // Check single quiz
+    function checkQuiz(exerciseNum, correctAnswer) {
+      if (completed[exerciseNum - 1]) return;
+
+      const selected = selectedAnswers[exerciseNum];
+      if (!selected) {
+        ToastManager.warning('Selectionnez une reponse', 2000);
+        return;
+      }
+
+      const options = document.querySelectorAll(`#exercise${exerciseNum} .quiz-option`);
+      options.forEach(opt => {
+        if (opt.dataset.value === correctAnswer) {
+          opt.classList.add('correct');
+        } else if (opt.dataset.value === selected && selected !== correctAnswer) {
+          opt.classList.add('incorrect');
+        }
+      });
+
+      const isCorrect = selected === correctAnswer;
+      const feedback = document.getElementById(`feedback${exerciseNum}`);
+      feedback.classList.remove('hidden');
+
+      const explanations = {
+        2: 'Le XSS Stocke est sauvegarde dans la base de donnees et s\'execute pour TOUS les utilisateurs qui visitent la page.',
+        3: 'Les lignes avec innerHTML (titre et corps) sont vulnerables. textContent et innerText sont securises.',
+        4: 'textContent affiche le contenu comme du texte brut, sans interpreter le HTML.',
+        6: 'Content-Security-Policy permet de definir les sources autorisees pour les scripts, styles, etc.'
+      };
+
+      if (isCorrect) {
+        score++;
+        feedback.className = 'alert alert-success';
+        feedback.innerHTML = `<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">Correct ! ${explanations[exerciseNum]}</p></div>`;
+        ToastManager.success('Bonne reponse !', 2000);
+      } else {
+        feedback.className = 'alert alert-danger';
+        feedback.innerHTML = `<span class="alert-icon">&#10006;</span><div class="alert-content"><p class="alert-message">Incorrect. ${explanations[exerciseNum]}</p></div>`;
+        ToastManager.danger('Mauvaise reponse', 2000);
+      }
+
+      completed[exerciseNum - 1] = true;
+      updateProgress();
+    }
+
+    // Check multi-select quiz
+    function checkMultiQuiz(exerciseNum) {
+      if (completed[exerciseNum - 1]) return;
+
+      const options = document.querySelectorAll(`#quiz${exerciseNum}Options .quiz-option`);
+      let correct = 0;
+      let total = 0;
+
+      options.forEach(opt => {
+        const isCorrect = opt.dataset.correct === 'true';
+        const isSelected = opt.classList.contains('selected');
+
+        if (isCorrect) {
+          total++;
+          opt.classList.add('correct');
+          if (isSelected) correct++;
+        } else if (isSelected) {
+          opt.classList.add('incorrect');
+        }
+      });
+
+      const feedback = document.getElementById(`feedback${exerciseNum}`);
+      feedback.classList.remove('hidden');
+
+      if (correct === total && !Array.from(options).some(o => o.classList.contains('incorrect'))) {
+        score++;
+        feedback.className = 'alert alert-success';
+        feedback.innerHTML = '<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">Parfait ! Echappement, CSP et HttpOnly sont les bonnes pratiques. La validation cote client seule ne suffit JAMAIS.</p></div>';
+        ToastManager.success('Bonne reponse !', 2000);
+      } else {
+        feedback.className = 'alert alert-warning';
+        feedback.innerHTML = '<span class="alert-icon">&#9888;</span><div class="alert-content"><p class="alert-message">Partiellement correct. La validation cote client seule ne suffit JAMAIS car elle peut etre contournee.</p></div>';
+        ToastManager.warning('Reponse partielle', 2000);
+      }
+
+      completed[exerciseNum - 1] = true;
+      updateProgress();
+    }
+
+    // Show results
+    function showResults() {
+      timerInstance.pause();
+
+      document.getElementById('resultsCard').classList.remove('hidden');
+      document.getElementById('finalScore').textContent = score;
+
+      const messages = {
+        6: '&#127942; Excellent ! Vous maitrisez les bases de la securite XSS !',
+        5: '&#127881; Tres bien ! Vous avez une bonne comprehension de XSS.',
+        4: '&#128077; Bien ! Quelques points a revoir.',
+        3: '&#128172; Correct. Revoyez les concepts non maitrises.',
+        2: '&#128214; A ameliorer. Relisez les chapitres.',
+        1: '&#128218; Besoin de pratique. Recommencez l\'activite.',
+        0: '&#128218; N\'abandonnez pas ! Relisez les cours.'
+      };
+
+      document.getElementById('resultMessage').innerHTML = messages[score] || messages[0];
+
+      // Scroll to results
+      document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Reset activity
+    function resetActivity() {
+      score = 0;
+      completed = [false, false, false, false, false, false];
+      selectedAnswers = {};
+
+      // Reset UI
+      document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.classList.remove('selected', 'correct', 'incorrect');
+      });
+      document.querySelectorAll('.code-spot').forEach(spot => {
+        spot.classList.remove('vulnerable', 'safe');
+      });
+      document.querySelectorAll('[id^="feedback"]').forEach(fb => {
+        fb.classList.add('hidden');
+      });
+      document.getElementById('resultsCard').classList.add('hidden');
+
+      // Reset timer
+      timerInstance.reset();
+      timerInstance.start();
+      timerPaused = false;
+      document.getElementById('timerBtn').innerHTML = '&#9208; Pause';
+
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

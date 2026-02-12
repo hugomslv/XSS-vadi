@@ -96,7 +96,37 @@ app.get('/', (req, res) => {
 
 // Page de défense
 app.get('/defense', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
   res.render('defense', { title: 'Défenses contre XSS' });
+});
+
+// Page de démonstration interactive
+app.get('/demo', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  res.render('demo', { title: 'Démo XSS Interactive' });
+});
+
+// Page d'activité pratique
+app.get('/activity', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  res.render('activity', { title: 'Activité Pratique XSS' });
+});
+
+// Guide enseignant (admin uniquement)
+app.get('/teacher-guide', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  if (!req.session.isAdmin) {
+    return res.status(403).render('403', { title: 'Accès refusé' });
+  }
+  res.render('teacher-guide', { title: 'Guide Enseignant' });
 });
 
 // Gestion des erreurs 404

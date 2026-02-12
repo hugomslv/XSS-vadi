@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo XSS Interactive - XSS VADI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <% const currentPage = 'demo'; %>
+  <%- include('partials/navbar') %>
+
+  <!-- Banner d'avertissement -->
+  <div class="alert alert-danger alert-banner">
+    <span class="alert-icon">&#129514;</span>
+    <div class="alert-content">
+      <p class="alert-message"><strong>DEMO XSS :</strong> Comparez le rendu vulnerable vs securise en temps reel</p>
+    </div>
+  </div>
+
+  <main class="container py-xl">
+    <h1 class="mb-md">&#129514; Demo XSS Interactive</h1>
+
+    <!-- Objectif -->
+    <div class="chapter-objective mb-xl">
+      <span class="chapter-objective-icon">&#127919;</span>
+      <div>
+        <strong class="text-primary">Objectif :</strong>
+        <span class="text-secondary">Comprendre visuellement la difference entre un rendu vulnerable (HTML/JS execute) et un rendu securise (HTML/JS echappe).</span>
+      </div>
+    </div>
+
+    <!-- Zone de saisie -->
+    <div class="card card-primary mb-lg">
+      <div class="card-header">
+        <h4>&#9998; Entrez votre payload</h4>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label for="xssInput" class="form-label">Code HTML/JavaScript a tester :</label>
+          <textarea
+            class="form-textarea font-mono"
+            id="xssInput"
+            rows="4"
+            placeholder="Entrez du HTML ou JavaScript ici..."
+          >&lt;strong&gt;Texte en gras&lt;/strong&gt;</textarea>
+        </div>
+        <button class="btn btn-primary" onclick="updatePreview()">
+          &#128269; Tester le payload
+        </button>
+      </div>
+    </div>
+
+    <!-- Comparaison cote a cote -->
+    <div class="xss-comparison mb-xl">
+      <!-- Panel Vulnerable -->
+      <div class="xss-panel vulnerable">
+        <div class="xss-panel-header">
+          <span class="badge badge-danger">&#9888; VULNERABLE</span>
+          Rendu HTML brut (innerHTML)
+        </div>
+        <div class="xss-panel-body" id="vulnerableOutput">
+          <strong>Texte en gras</strong>
+        </div>
+      </div>
+
+      <!-- Panel Securise -->
+      <div class="xss-panel secure">
+        <div class="xss-panel-header">
+          <span class="badge badge-success">&#10003; SECURISE</span>
+          Contenu echappe (textContent)
+        </div>
+        <div class="xss-panel-body" id="secureOutput">
+          &lt;strong&gt;Texte en gras&lt;/strong&gt;
+        </div>
+      </div>
+    </div>
+
+    <!-- Explication -->
+    <div class="card mb-xl">
+      <div class="card-header">
+        <h4>&#128161; Explication</h4>
+      </div>
+      <div class="card-body" id="explanationBox">
+        <p class="mb-md"><strong>Que se passe-t-il ?</strong></p>
+        <ul>
+          <li><strong>Cote VULNERABLE :</strong> Le HTML est interprete et rendu. Les balises <code>&lt;strong&gt;</code> appliquent le style gras.</li>
+          <li><strong>Cote SECURISE :</strong> Le HTML est echappe et affiche comme du texte brut. Les balises ne sont pas interpretees.</li>
+        </ul>
+        <div class="alert alert-info mt-md">
+          <span class="alert-icon">&#128161;</span>
+          <div class="alert-content">
+            <p class="alert-message">Cet exemple est inoffensif, mais imaginez si c'etait du JavaScript malveillant...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payloads de test -->
+    <div class="card card-warning mb-xl">
+      <div class="card-header">
+        <h4>&#128221; Payloads de test (cliquez pour tester)</h4>
+      </div>
+      <div class="card-body">
+        <p class="text-sm text-secondary mb-md">Ces payloads sont pedagogiques et inoffensifs. Cliquez sur un bouton pour le charger automatiquement.</p>
+
+        <div class="grid grid-2 gap-md">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="mb-sm text-success">&#10004; HTML Basique</h5>
+              <div class="code-block">
+                <pre><code>&lt;strong&gt;Texte en gras&lt;/strong&gt;</code></pre>
+              </div>
+              <button class="btn btn-sm btn-success" onclick="loadPayload('&lt;strong&gt;Texte en gras&lt;/strong&gt;')">
+                Tester
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="mb-sm text-success">&#10004; HTML Italique</h5>
+              <div class="code-block">
+                <pre><code>&lt;em&gt;Texte en italique&lt;/em&gt;</code></pre>
+              </div>
+              <button class="btn btn-sm btn-success" onclick="loadPayload('&lt;em&gt;Texte en italique&lt;/em&gt;')">
+                Tester
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="mb-sm text-warning">&#9888; Script Alert</h5>
+              <div class="code-block">
+                <pre><code>&lt;script&gt;alert('XSS Demo')&lt;/script&gt;</code></pre>
+              </div>
+              <button class="btn btn-sm btn-warning" onclick="loadPayload('&lt;script&gt;alert(\\'XSS Demo\\')&lt;/script&gt;')">
+                Tester
+              </button>
+              <p class="text-xs text-muted mt-sm">Note: Les scripts inline ne s'executent pas via innerHTML</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="mb-sm text-danger">&#9888; Image onerror</h5>
+              <div class="code-block">
+                <pre><code>&lt;img src="x" onerror="alert('XSS')"&gt;</code></pre>
+              </div>
+              <button class="btn btn-sm btn-danger" onclick="loadPayload('&lt;img src=&quot;x&quot; onerror=&quot;alert(\\'XSS via image\\')&quot;&gt;')">
+                Tester
+              </button>
+              <p class="text-xs text-muted mt-sm">Cette methode execute le JavaScript !</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau recapitulatif -->
+    <div class="card mb-xl">
+      <div class="card-header">
+        <h4>&#128202; Tableau comparatif</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Methode</th>
+                <th>Code</th>
+                <th>Resultat</th>
+                <th>Securite</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>innerHTML</code></td>
+                <td><code>el.innerHTML = userInput</code></td>
+                <td>HTML interprete, JS peut s'executer</td>
+                <td><span class="badge badge-danger">&#9888; VULNERABLE</span></td>
+              </tr>
+              <tr>
+                <td><code>textContent</code></td>
+                <td><code>el.textContent = userInput</code></td>
+                <td>Texte brut affiche</td>
+                <td><span class="badge badge-success">&#10003; SECURISE</span></td>
+              </tr>
+              <tr>
+                <td><code>innerText</code></td>
+                <td><code>el.innerText = userInput</code></td>
+                <td>Texte brut affiche</td>
+                <td><span class="badge badge-success">&#10003; SECURISE</span></td>
+              </tr>
+              <tr>
+                <td>EJS <code>&lt;%- %&gt;</code></td>
+                <td><code>&lt;%- userInput %&gt;</code></td>
+                <td>HTML non echappe</td>
+                <td><span class="badge badge-danger">&#9888; VULNERABLE</span></td>
+              </tr>
+              <tr>
+                <td>EJS <code>&lt;%= %&gt;</code></td>
+                <td><code>&lt;%= userInput %&gt;</code></td>
+                <td>HTML echappe automatiquement</td>
+                <td><span class="badge badge-success">&#10003; SECURISE</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Points cles -->
+    <div class="card card-success">
+      <div class="card-header">
+        <h4>&#128218; Points cles a retenir</h4>
+      </div>
+      <div class="card-body">
+        <ul class="checklist">
+          <li class="checklist-item">Toujours echapper les donnees utilisateur avant de les afficher</li>
+          <li class="checklist-item">Preferer <code>textContent</code> a <code>innerHTML</code> quand possible</li>
+          <li class="checklist-item">En EJS, utiliser <code>&lt;%= %&gt;</code> (echappe) au lieu de <code>&lt;%- %&gt;</code> (brut)</li>
+          <li class="checklist-item">Les attributs d'evenements (onclick, onerror...) sont des vecteurs d'attaque courants</li>
+          <li class="checklist-item">Le contexte d'insertion (HTML, attribut, JS, URL) determine la methode d'echappement</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between mt-xl">
+      <a href="/chapters" class="btn">&#8592; Retour aux chapitres</a>
+      <a href="/activity" class="btn btn-primary">Activite pratique &#8594;</a>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/app.js"></script>
+  <script>
+    function updatePreview() {
+      const input = document.getElementById('xssInput').value;
+      const vulnerableOutput = document.getElementById('vulnerableOutput');
+      const secureOutput = document.getElementById('secureOutput');
+      const explanationBox = document.getElementById('explanationBox');
+
+      // Rendu vulnerable (HTML interprete)
+      vulnerableOutput.innerHTML = input;
+
+      // Rendu securise (texte echappe)
+      secureOutput.textContent = input;
+
+      // Mise a jour de l'explication
+      updateExplanation(input);
+    }
+
+    function loadPayload(payload) {
+      document.getElementById('xssInput').value = payload;
+      updatePreview();
+    }
+
+    function updateExplanation(input) {
+      const box = document.getElementById('explanationBox');
+      let explanation = '';
+
+      if (input.includes('<script>')) {
+        explanation = `
+          <p class="mb-md"><strong>&#9888; Payload avec balise &lt;script&gt;</strong></p>
+          <ul>
+            <li><strong>Cote VULNERABLE :</strong> La balise script est inseree mais ne s'execute PAS via innerHTML (securite navigateur).</li>
+            <li><strong>Cote SECURISE :</strong> Le code est affiche comme du texte.</li>
+          </ul>
+          <div class="alert alert-warning mt-md">
+            <span class="alert-icon">&#128161;</span>
+            <div class="alert-content">
+              <p class="alert-message">Attention : sur une vraie page generee cote serveur, la balise script S'EXECUTERAIT !</p>
+            </div>
+          </div>
+        `;
+      } else if (input.includes('onerror') || input.includes('onclick') || input.includes('onload')) {
+        explanation = `
+          <p class="mb-md"><strong>&#128680; Payload avec evenement JavaScript</strong></p>
+          <ul>
+            <li><strong>Cote VULNERABLE :</strong> L'evenement (onerror, onclick...) S'EXECUTE ! C'est la technique la plus courante pour XSS.</li>
+            <li><strong>Cote SECURISE :</strong> Le code est affiche comme du texte inoffensif.</li>
+          </ul>
+          <div class="alert alert-danger mt-md">
+            <span class="alert-icon">&#9888;</span>
+            <div class="alert-content">
+              <p class="alert-title">Danger !</p>
+              <p class="alert-message">Ce type de payload est tres dangereux car il contourne les protections contre les balises script.</p>
+            </div>
+          </div>
+        `;
+      } else if (input.includes('<') && input.includes('>')) {
+        explanation = `
+          <p class="mb-md"><strong>&#128221; Payload HTML</strong></p>
+          <ul>
+            <li><strong>Cote VULNERABLE :</strong> Les balises HTML sont interpretees et le style est applique.</li>
+            <li><strong>Cote SECURISE :</strong> Les balises sont echappees et affichees comme du texte.</li>
+          </ul>
+          <div class="alert alert-info mt-md">
+            <span class="alert-icon">&#128161;</span>
+            <div class="alert-content">
+              <p class="alert-message">Meme du HTML "inoffensif" peut etre problematique (defacement, phishing...).</p>
+            </div>
+          </div>
+        `;
+      } else {
+        explanation = `
+          <p class="mb-md"><strong>&#128221; Texte simple</strong></p>
+          <ul>
+            <li>Le texte est affiche de la meme facon des deux cotes.</li>
+            <li>Sans balises HTML ou evenements, il n'y a pas de risque XSS.</li>
+          </ul>
+        `;
+      }
+
+      box.innerHTML = explanation;
+    }
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', updatePreview);
+  </script>
+</body>
+</html>

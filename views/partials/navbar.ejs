@@ -1,47 +1,49 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">
-      <strong>🔓 XSS VADI</strong> <span class="badge bg-warning text-dark">DEMO</span>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-inner">
+      <a href="/" class="navbar-brand">
+        <span class="logo-icon">&#128274;</span>
+        XSS VADI
+        <span class="badge badge-warning">DEMO</span>
+      </a>
+
+      <button class="navbar-toggle" onclick="toggleNav()" aria-label="Menu">
+        &#9776;
+      </button>
+
+      <ul class="navbar-nav" id="navbarNav">
         <% if (user) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/chapters">Chapitres</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/defense">Défenses</a>
-          </li>
+          <li><a href="/chapters" class="<%= typeof currentPage !== 'undefined' && currentPage === 'chapters' ? 'active' : '' %>">&#128218; Chapitres</a></li>
+          <li><a href="/demo" class="<%= typeof currentPage !== 'undefined' && currentPage === 'demo' ? 'active' : '' %>">&#129514; Demo XSS</a></li>
+          <li><a href="/activity" class="<%= typeof currentPage !== 'undefined' && currentPage === 'activity' ? 'active' : '' %>">&#127919; Activite</a></li>
+          <li><a href="/defense" class="<%= typeof currentPage !== 'undefined' && currentPage === 'defense' ? 'active' : '' %>">&#128737; Defenses</a></li>
           <% if (isAdmin) { %>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin">Admin Panel</a>
-            </li>
+            <li><a href="/admin" class="<%= typeof currentPage !== 'undefined' && currentPage === 'admin' ? 'active' : '' %>">&#128736; Admin</a></li>
+            <li><a href="/teacher-guide" class="<%= typeof currentPage !== 'undefined' && currentPage === 'teacher' ? 'active' : '' %>">&#128218; Guide Prof</a></li>
           <% } %>
         <% } %>
       </ul>
-      <ul class="navbar-nav">
+
+      <div class="navbar-user">
         <% if (user) { %>
-          <li class="nav-item">
-            <span class="navbar-text text-white me-3">
-              <% if (isAdmin) { %>
-                👨‍💼 Admin
-              <% } else { %>
-                👤 <%= user %>
-              <% } %>
-            </span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/logout">Déconnexion</a>
-          </li>
+          <div class="navbar-user-info">
+            <% if (isAdmin) { %>
+              &#128100; Admin
+            <% } else { %>
+              &#128100; <%= user %>
+            <% } %>
+          </div>
+          <a href="/logout" class="btn btn-sm btn-ghost">Deconnexion</a>
         <% } else { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/login">Connexion</a>
-          </li>
+          <a href="/login" class="btn btn-sm btn-primary">Connexion</a>
         <% } %>
-      </ul>
+      </div>
     </div>
   </div>
 </nav>
+
+<script>
+function toggleNav() {
+  document.getElementById('navbarNav').classList.toggle('active');
+}
+</script>
