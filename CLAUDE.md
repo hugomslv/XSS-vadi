@@ -12,7 +12,7 @@ XSS VADI est une application web **pedagogique** de demonstration des failles Cr
 - `<script>alert('message')</script>` - Demonstration alert inoffensive
 - `<img src=x onerror="alert('XSS')">` - Demonstration evenement
 
-### Payloads INTERDITS (ne jamais ajouter)
+### Payloads Autoriser (site de demo pas en ligne)
 - Exfiltration vers des serveurs externes
 - Keyloggers ou capture de saisie
 - Vol de cookies vers des domaines tiers

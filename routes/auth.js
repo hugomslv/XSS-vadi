@@ -6,6 +6,15 @@ function generateDemoToken() {
   return 'DEMO-' + Math.random().toString(36).substring(2, 15);
 }
 
+// Options cookies communes (httpOnly: false volontairement pour la démo XSS)
+const COOKIE_OPTIONS = { maxAge: 24 * 60 * 60 * 1000, httpOnly: false, sameSite: 'lax' };
+
+function setAuthCookies(res, demoToken, username, password) {
+  res.cookie('demoToken', demoToken, COOKIE_OPTIONS);
+  res.cookie('userName', username, COOKIE_OPTIONS);
+  res.cookie('userPassword', password, COOKIE_OPTIONS);
+}
+
 // Page de login
 router.get('/login', (req, res) => {
   if (req.session.user) {
@@ -25,17 +34,7 @@ router.post('/login', (req, res) => {
 
     // Créer un demoToken pour l'admin aussi
     const demoToken = generateDemoToken();
-    // Cookies configurés pour fonctionner en réseau local
-    res.cookie('demoToken', demoToken, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: false,  // Accessible en JS pour la démo
-      sameSite: 'lax'   // Permet les requêtes cross-site en GET
-    });
-    res.cookie('userName', username, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: false,
-      sameSite: 'lax'
-    });
+    setAuthCookies(res, demoToken, username, password);
 
     console.log(`[AUTH] ✅ Admin connecté - demoToken: ${demoToken}`);
 
@@ -50,16 +49,7 @@ router.post('/login', (req, res) => {
 
     // Créer un demoToken pour cet utilisateur
     const demoToken = generateDemoToken();
-    res.cookie('demoToken', demoToken, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: false,
-      sameSite: 'lax'
-    });
-    res.cookie('userName', username, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: false,
-      sameSite: 'lax'
-    });
+    setAuthCookies(res, demoToken, username, password);
 
     console.log(`[AUTH] ✅ User "${username}" connecté - demoToken: ${demoToken}`);
 
@@ -78,6 +68,7 @@ router.get('/logout', (req, res) => {
   req.session.destroy();
   res.clearCookie('demoToken');
   res.clearCookie('userName');
+  res.clearCookie('userPassword');
   res.redirect('/login');
 });
 

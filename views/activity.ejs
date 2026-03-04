@@ -8,20 +8,124 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .exercise-card {
+      transition: opacity 0.3s ease;
+    }
+    .exercise-locked {
+      display: none;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .exercise-reveal {
+      animation: slideIn 0.4s ease forwards;
+    }
+    .hint-box {
+      background: var(--color-warning-bg, #fffbeb);
+      border: 1px solid var(--color-warning, #f59e0b);
+      border-radius: var(--radius-md, 8px);
+      padding: var(--spacing-md, 12px) var(--spacing-lg, 16px);
+      margin-top: var(--spacing-md, 12px);
+    }
+    .hint-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-warning, #f59e0b);
+      margin-bottom: 4px;
+    }
+    .hint-text {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary, #6b7280);
+    }
+    .next-btn-wrapper {
+      display: none;
+      margin-top: var(--spacing-lg, 16px);
+    }
+    .code-spot {
+      display: block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .code-spot:hover { background: rgba(255,255,255,0.08); }
+    .code-spot.highlight-correct { background: rgba(16,185,129,0.2); border-left: 3px solid #10b981; }
+    .code-spot.highlight-wrong   { background: rgba(239,68,68,0.15);  border-left: 3px solid #ef4444; }
+    .stepper { display: flex; gap: 0; align-items: center; margin-bottom: var(--spacing-xl, 32px); }
+    .stepper-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+    .stepper-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--color-border, #e5e7eb);
+      z-index: 0;
+    }
+    .stepper-item.completed::after { background: var(--color-success, #10b981); }
+    .stepper-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--color-border, #e5e7eb);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--color-text-muted, #9ca3af);
+      z-index: 1;
+      position: relative;
+      transition: background 0.3s, color 0.3s;
+    }
+    .stepper-item.active .stepper-dot {
+      background: var(--color-primary, #3b82f6);
+      color: #fff;
+    }
+    .stepper-item.completed .stepper-dot {
+      background: var(--color-success, #10b981);
+      color: #fff;
+    }
+    .stepper-label {
+      font-size: 0.65rem;
+      color: var(--color-text-muted, #9ca3af);
+      margin-top: 4px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .stepper-item.active .stepper-label   { color: var(--color-primary, #3b82f6); font-weight: 600; }
+    .stepper-item.completed .stepper-label { color: var(--color-success, #10b981); }
+    .options-gate {
+      display: flex; flex-direction: column; gap: var(--spacing-sm, 8px);
+      background: var(--color-bg-secondary, #f9fafb);
+      border: 1px dashed var(--color-border, #e5e7eb);
+      border-radius: var(--radius-md, 8px);
+      padding: var(--spacing-md, 12px) var(--spacing-lg, 16px);
+      margin-bottom: var(--spacing-md, 12px);
+    }
+    .options-gate-text { font-size: 0.875rem; color: var(--color-text-secondary, #6b7280); font-style: italic; }
+    .options-gate-btns { display: flex; gap: var(--spacing-sm, 8px); flex-wrap: wrap; }
+    .options-hidden { display: none; }
+    .text-answer-row { display: flex; gap: var(--spacing-sm, 8px); align-items: center; flex-wrap: wrap; margin-bottom: var(--spacing-md, 12px); }
+    .text-answer-input { font-family: var(--font-mono, monospace); font-size: 1rem; padding: 8px 12px; border: 1px solid var(--color-border, #e5e7eb); border-radius: var(--radius-md, 8px); min-width: 280px; background: var(--color-bg, #fff); color: var(--color-text, #111); }
+    .text-answer-input:focus { outline: none; border-color: var(--color-primary, #3b82f6); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+  </style>
 </head>
 <body>
   <% const currentPage = 'activity'; %>
   <%- include('partials/navbar') %>
 
   <main class="container py-xl">
-    <!-- Header avec timer -->
+
+    <!-- Header -->
     <div class="flex justify-between items-center mb-lg">
       <div>
         <h1 class="mb-sm">&#127919; Activite Pratique XSS</h1>
-        <p class="text-secondary">Duree estimee : 15-20 minutes</p>
+        <p class="text-secondary">9 exercices &bull; Duree estimee : 25-30 min</p>
       </div>
       <div class="flex items-center gap-md">
-        <div class="timer" id="timer">20:00</div>
+        <div class="timer" id="timer">30:00</div>
         <button class="btn btn-sm" onclick="toggleTimer()" id="timerBtn">&#9208; Pause</button>
       </div>
     </div>
@@ -31,7 +135,7 @@
       <div class="card-body">
         <div class="flex justify-between items-center mb-sm">
           <span class="text-sm font-bold">Progression</span>
-          <span class="text-sm" id="progressText">0 / 6 exercices</span>
+          <span class="text-sm" id="progressText">0 / 10 exercices</span>
         </div>
         <div class="progress">
           <div class="progress-bar" id="progressBar" style="width: 0%"></div>
@@ -41,39 +145,51 @@
 
     <!-- Stepper -->
     <div class="stepper mb-xl" id="stepper">
-      <div class="stepper-step active">
-        <div class="stepper-indicator">1</div>
+      <div class="stepper-item active" data-step="1">
+        <div class="stepper-dot">1</div>
         <span class="stepper-label">Identifier</span>
       </div>
-      <div class="stepper-step">
-        <div class="stepper-indicator">2</div>
-        <span class="stepper-label">Comprendre</span>
+      <div class="stepper-item" data-step="2">
+        <div class="stepper-dot">2</div>
+        <span class="stepper-label">Types</span>
       </div>
-      <div class="stepper-step">
-        <div class="stepper-indicator">3</div>
+      <div class="stepper-item" data-step="3">
+        <div class="stepper-dot">3</div>
         <span class="stepper-label">Analyser</span>
       </div>
-      <div class="stepper-step">
-        <div class="stepper-indicator">4</div>
+      <div class="stepper-item" data-step="4">
+        <div class="stepper-dot">4</div>
         <span class="stepper-label">Corriger</span>
       </div>
-      <div class="stepper-step">
-        <div class="stepper-indicator">5</div>
-        <span class="stepper-label">Appliquer</span>
+      <div class="stepper-item" data-step="5">
+        <div class="stepper-dot">5</div>
+        <span class="stepper-label">Impact</span>
       </div>
-      <div class="stepper-step">
-        <div class="stepper-indicator">6</div>
-        <span class="stepper-label">Synthese</span>
+      <div class="stepper-item" data-step="6">
+        <div class="stepper-dot">6</div>
+        <span class="stepper-label">Headers</span>
+      </div>
+      <div class="stepper-item" data-step="7">
+        <div class="stepper-dot">7</div>
+        <span class="stepper-label">Acronyme</span>
+      </div>
+      <div class="stepper-item" data-step="8">
+        <div class="stepper-dot">8</div>
+        <span class="stepper-label">Vecteur</span>
+      </div>
+      <div class="stepper-item" data-step="9">
+        <div class="stepper-dot">9</div>
+        <span class="stepper-label">Cookies</span>
       </div>
     </div>
 
-    <!-- Exercice 1 : Identifier le code vulnerable -->
-    <div class="quiz-question" id="exercise1">
+    <!-- ===================== EXERCICE 1 ===================== -->
+    <div class="quiz-question exercise-card" id="exercise1">
       <div class="quiz-question-header">
         <div class="quiz-question-number">1</div>
         <div>
           <h4 class="mb-0">Repere le code vulnerable</h4>
-          <p class="text-sm text-secondary mb-0">Cliquez sur la ligne qui contient une faille XSS</p>
+          <p class="text-sm text-secondary mb-0">Clique sur la ligne qui introduit une faille XSS.</p>
         </div>
       </div>
 
@@ -81,55 +197,70 @@
         <div class="code-block-header">
           <span class="code-block-lang">JavaScript</span>
         </div>
-        <pre><code><span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this, 1)">const username = document.getElementById('name').value;</span>
-<span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this, 1)">const sanitized = escapeHtml(username);</span>
-<span class="code-spot" data-vulnerable="true" onclick="checkCodeSpot(this, 1)">document.getElementById('output').innerHTML = username;</span>
-<span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this, 1)">console.log('User:', sanitized);</span></code></pre>
+        <pre><code><span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this,1)">const username = document.getElementById('name').value;</span>
+<span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this,1)">const sanitized = escapeHtml(username);</span>
+<span class="code-spot" data-vulnerable="true"  onclick="checkCodeSpot(this,1)">document.getElementById('output').innerHTML = username;</span>
+<span class="code-spot" data-vulnerable="false" onclick="checkCodeSpot(this,1)">console.log('User:', sanitized);</span></code></pre>
       </div>
 
+      <div id="hint-area-1"></div>
       <div class="alert hidden" id="feedback1"></div>
+      <div class="next-btn-wrapper" id="next1">
+        <button class="btn btn-primary" onclick="goToNext(1)">Exercice suivant &#8594;</button>
+      </div>
     </div>
 
-    <!-- Exercice 2 : QCM Types de XSS -->
-    <div class="quiz-question" id="exercise2">
+    <!-- ===================== EXERCICE 2 ===================== -->
+    <div class="quiz-question exercise-card exercise-locked" id="exercise2">
       <div class="quiz-question-header">
         <div class="quiz-question-number">2</div>
         <div>
           <h4 class="mb-0">Types de XSS</h4>
-          <p class="text-sm text-secondary mb-0">Quel type de XSS est le plus dangereux car il affecte tous les visiteurs ?</p>
+          <p class="text-sm text-secondary mb-0">Quel type de XSS est le plus dangereux car il touche tous les visiteurs ?</p>
         </div>
       </div>
 
-      <div class="quiz-options">
-        <div class="quiz-option" data-value="reflected" onclick="selectQuizOption(this, 2)">
+      <div class="options-gate" id="gate2">
+        <span class="options-gate-text">&#129300; Reflechissez... Avez-vous besoin d'un indice avant de voir les choix ?</span>
+        <div class="options-gate-btns">
+          <button class="btn btn-sm" onclick="showHint(2)">&#128161; Indice</button>
+          <button class="btn btn-sm btn-primary" onclick="revealOptions(2)">Voir les propositions &#8595;</button>
+        </div>
+      </div>
+      <div class="quiz-options options-hidden" id="options2">
+        <div class="quiz-option" data-value="reflected" onclick="selectOption(this,2)">
           <span class="quiz-option-letter">A</span>
-          <span>XSS Reflechi (Reflected XSS)</span>
+          <span>XSS Reflechi (Reflected)</span>
         </div>
-        <div class="quiz-option" data-value="stored" onclick="selectQuizOption(this, 2)">
+        <div class="quiz-option" data-value="stored" onclick="selectOption(this,2)">
           <span class="quiz-option-letter">B</span>
-          <span>XSS Stocke (Stored XSS)</span>
+          <span>XSS Stocke (Stored)</span>
         </div>
-        <div class="quiz-option" data-value="dom" onclick="selectQuizOption(this, 2)">
+        <div class="quiz-option" data-value="dom" onclick="selectOption(this,2)">
           <span class="quiz-option-letter">C</span>
           <span>XSS DOM-based</span>
         </div>
-        <div class="quiz-option" data-value="self" onclick="selectQuizOption(this, 2)">
+        <div class="quiz-option" data-value="self" onclick="selectOption(this,2)">
           <span class="quiz-option-letter">D</span>
           <span>Self-XSS</span>
         </div>
       </div>
 
-      <button class="btn btn-primary mt-md" onclick="checkQuiz(2, 'stored')">Valider ma reponse</button>
+      <button class="btn btn-primary mt-md options-hidden" id="btn-validate-2" onclick="checkQuiz(2,'stored')">Valider</button>
+      <div id="hint-area-2"></div>
       <div class="alert hidden mt-md" id="feedback2"></div>
+      <div class="next-btn-wrapper" id="next2">
+        <button class="btn btn-primary" onclick="goToNext(2)">Exercice suivant &#8594;</button>
+      </div>
     </div>
 
-    <!-- Exercice 3 : Identifier plusieurs vulnerabilites -->
-    <div class="quiz-question" id="exercise3">
+    <!-- ===================== EXERCICE 3 ===================== -->
+    <div class="quiz-question exercise-card exercise-locked" id="exercise3">
       <div class="quiz-question-header">
         <div class="quiz-question-number">3</div>
         <div>
           <h4 class="mb-0">Analyse de code</h4>
-          <p class="text-sm text-secondary mb-0">Combien de vulnerabilites XSS contient ce code ?</p>
+          <p class="text-sm text-secondary mb-0">Combien de lignes sont vulnerables a XSS dans ce code ?</p>
         </div>
       </div>
 
@@ -138,149 +269,268 @@
           <span class="code-block-lang">JavaScript</span>
         </div>
         <pre><code>function displayComment(comment) {
-  // Ligne 1
-  document.querySelector('.title').innerHTML = comment.title;
-  // Ligne 2
-  document.querySelector('.author').textContent = comment.author;
-  // Ligne 3
-  document.querySelector('.body').innerHTML = comment.body;
-  // Ligne 4
-  document.querySelector('.date').innerText = comment.date;
+  document.querySelector('.title').innerHTML  = comment.title;   // ligne 1
+  document.querySelector('.author').textContent = comment.author; // ligne 2
+  document.querySelector('.body').innerHTML   = comment.body;    // ligne 3
+  document.querySelector('.date').innerText   = comment.date;    // ligne 4
 }</code></pre>
       </div>
 
-      <div class="quiz-options">
-        <div class="quiz-option" data-value="1" onclick="selectQuizOption(this, 3)">
-          <span class="quiz-option-letter">A</span>
-          <span>1 vulnerabilite</span>
+      <div class="options-gate" id="gate3">
+        <span class="options-gate-text">&#129300; Analysez le code ci-dessus... Quel est votre verdict ?</span>
+        <div class="options-gate-btns">
+          <button class="btn btn-sm" onclick="showHint(3)">&#128161; Indice</button>
+          <button class="btn btn-sm btn-primary" onclick="revealOptions(3)">Voir les propositions &#8595;</button>
         </div>
-        <div class="quiz-option" data-value="2" onclick="selectQuizOption(this, 3)">
-          <span class="quiz-option-letter">B</span>
-          <span>2 vulnerabilites</span>
+      </div>
+      <div class="quiz-options options-hidden" id="options3">
+        <div class="quiz-option" data-value="1" onclick="selectOption(this,3)">
+          <span class="quiz-option-letter">A</span><span>1 vulnerability</span>
         </div>
-        <div class="quiz-option" data-value="3" onclick="selectQuizOption(this, 3)">
-          <span class="quiz-option-letter">C</span>
-          <span>3 vulnerabilites</span>
+        <div class="quiz-option" data-value="2" onclick="selectOption(this,3)">
+          <span class="quiz-option-letter">B</span><span>2 vulnerabilites</span>
         </div>
-        <div class="quiz-option" data-value="4" onclick="selectQuizOption(this, 3)">
-          <span class="quiz-option-letter">D</span>
-          <span>4 vulnerabilites</span>
+        <div class="quiz-option" data-value="3" onclick="selectOption(this,3)">
+          <span class="quiz-option-letter">C</span><span>3 vulnerabilites</span>
+        </div>
+        <div class="quiz-option" data-value="4" onclick="selectOption(this,3)">
+          <span class="quiz-option-letter">D</span><span>4 vulnerabilites</span>
         </div>
       </div>
 
-      <button class="btn btn-primary mt-md" onclick="checkQuiz(3, '2')">Valider ma reponse</button>
+      <button class="btn btn-primary mt-md options-hidden" id="btn-validate-3" onclick="checkQuiz(3,'2')">Valider</button>
+      <div id="hint-area-3"></div>
       <div class="alert hidden mt-md" id="feedback3"></div>
+      <div class="next-btn-wrapper" id="next3">
+        <button class="btn btn-primary" onclick="goToNext(3)">Exercice suivant &#8594;</button>
+      </div>
     </div>
 
-    <!-- Exercice 4 : Corriger le code -->
-    <div class="quiz-question" id="exercise4">
+    <!-- ===================== EXERCICE 4 ===================== -->
+    <div class="quiz-question exercise-card exercise-locked" id="exercise4">
       <div class="quiz-question-header">
         <div class="quiz-question-number">4</div>
         <div>
-          <h4 class="mb-0">Corrige ce code</h4>
-          <p class="text-sm text-secondary mb-0">Quelle est la correction appropriee pour ce code vulnerable ?</p>
+          <h4 class="mb-0">Corriger le code</h4>
+          <p class="text-sm text-secondary mb-0">Quelle est la bonne correction pour ce code vulnerable ?</p>
         </div>
       </div>
 
       <div class="code-block mb-md">
         <div class="code-block-header">
-          <span class="code-block-lang">Code vulnerable</span>
+          <span class="code-block-lang">Code a corriger</span>
           <span class="badge badge-danger">VULNERABLE</span>
         </div>
         <pre><code>element.innerHTML = userInput;</code></pre>
       </div>
 
-      <div class="quiz-options">
-        <div class="quiz-option" data-value="a" onclick="selectQuizOption(this, 4)">
+      <div class="options-gate" id="gate4">
+        <span class="options-gate-text">&#129300; Quelle propriete JS n'interprete jamais le HTML ? Reflechissez...</span>
+        <div class="options-gate-btns">
+          <button class="btn btn-sm" onclick="showHint(4)">&#128161; Indice</button>
+          <button class="btn btn-sm btn-primary" onclick="revealOptions(4)">Voir les propositions &#8595;</button>
+        </div>
+      </div>
+      <div class="quiz-options options-hidden" id="options4">
+        <div class="quiz-option" data-value="a" onclick="selectOption(this,4)">
           <span class="quiz-option-letter">A</span>
           <code>element.innerHTML = escape(userInput);</code>
         </div>
-        <div class="quiz-option" data-value="b" onclick="selectQuizOption(this, 4)">
+        <div class="quiz-option" data-value="b" onclick="selectOption(this,4)">
           <span class="quiz-option-letter">B</span>
           <code>element.textContent = userInput;</code>
         </div>
-        <div class="quiz-option" data-value="c" onclick="selectQuizOption(this, 4)">
+        <div class="quiz-option" data-value="c" onclick="selectOption(this,4)">
           <span class="quiz-option-letter">C</span>
           <code>element.innerHTML = userInput.replace('script', '');</code>
         </div>
-        <div class="quiz-option" data-value="d" onclick="selectQuizOption(this, 4)">
+        <div class="quiz-option" data-value="d" onclick="selectOption(this,4)">
           <span class="quiz-option-letter">D</span>
           <code>element.value = userInput;</code>
         </div>
       </div>
 
-      <button class="btn btn-primary mt-md" onclick="checkQuiz(4, 'b')">Valider ma reponse</button>
+      <button class="btn btn-primary mt-md options-hidden" id="btn-validate-4" onclick="checkQuiz(4,'b')">Valider</button>
+      <div id="hint-area-4"></div>
       <div class="alert hidden mt-md" id="feedback4"></div>
+      <div class="next-btn-wrapper" id="next4">
+        <button class="btn btn-primary" onclick="goToNext(4)">Exercice suivant &#8594;</button>
+      </div>
     </div>
 
-    <!-- Exercice 5 : Contre-mesures -->
-    <div class="quiz-question" id="exercise5">
+    <!-- ===================== EXERCICE 5 ===================== -->
+    <div class="quiz-question exercise-card exercise-locked" id="exercise5">
       <div class="quiz-question-header">
         <div class="quiz-question-number">5</div>
         <div>
-          <h4 class="mb-0">Contre-mesures</h4>
-          <p class="text-sm text-secondary mb-0">Quelles sont les bonnes pratiques pour prevenir XSS ? (plusieurs reponses)</p>
+          <h4 class="mb-0">Impact reel du XSS</h4>
+          <p class="text-sm text-secondary mb-0">Un attaquant injecte du JavaScript sur la page d'accueil d'une banque en ligne. Que peut-il faire ?</p>
         </div>
       </div>
 
-      <div class="quiz-options" id="quiz5Options">
-        <div class="quiz-option" data-value="escape" data-correct="true" onclick="toggleMultiOption(this)">
+      <div class="options-gate" id="gate5">
+        <span class="options-gate-text">&#129300; Le JavaScript s'execute dans le navigateur de la victime... Qu'est-ce qui est accessible depuis le navigateur ?</span>
+        <div class="options-gate-btns">
+          <button class="btn btn-sm" onclick="showHint(5)">&#128161; Indice</button>
+          <button class="btn btn-sm btn-primary" onclick="revealOptions(5)">Voir les propositions &#8595;</button>
+        </div>
+      </div>
+      <div class="quiz-options options-hidden" id="options5">
+        <div class="quiz-option" data-value="a" onclick="selectOption(this,5)">
           <span class="quiz-option-letter">A</span>
-          <span>Echapper les donnees utilisateur avant affichage</span>
+          <span>Lire les mots de passe haches dans la base de donnees</span>
         </div>
-        <div class="quiz-option" data-value="csp" data-correct="true" onclick="toggleMultiOption(this)">
+        <div class="quiz-option" data-value="b" onclick="selectOption(this,5)">
           <span class="quiz-option-letter">B</span>
-          <span>Implementer une Content Security Policy (CSP)</span>
+          <span>Voler les cookies de session et usurper l'identite des victimes</span>
         </div>
-        <div class="quiz-option" data-value="client" data-correct="false" onclick="toggleMultiOption(this)">
+        <div class="quiz-option" data-value="c" onclick="selectOption(this,5)">
           <span class="quiz-option-letter">C</span>
-          <span>Valider uniquement cote client (JavaScript)</span>
+          <span>Modifier directement les fichiers sur le serveur</span>
         </div>
-        <div class="quiz-option" data-value="httponly" data-correct="true" onclick="toggleMultiOption(this)">
+        <div class="quiz-option" data-value="d" onclick="selectOption(this,5)">
           <span class="quiz-option-letter">D</span>
-          <span>Utiliser HttpOnly pour les cookies sensibles</span>
+          <span>Cracker le chiffrement SSL de la connexion</span>
         </div>
       </div>
 
-      <button class="btn btn-primary mt-md" onclick="checkMultiQuiz(5)">Valider mes reponses</button>
+      <button class="btn btn-primary mt-md options-hidden" id="btn-validate-5" onclick="checkQuiz(5,'b')">Valider</button>
+      <div id="hint-area-5"></div>
       <div class="alert hidden mt-md" id="feedback5"></div>
+      <div class="next-btn-wrapper" id="next5">
+        <button class="btn btn-primary" onclick="goToNext(5)">Exercice suivant &#8594;</button>
+      </div>
     </div>
 
-    <!-- Exercice 6 : Synthese -->
-    <div class="quiz-question" id="exercise6">
+    <!-- ===================== EXERCICE 6 ===================== -->
+    <div class="quiz-question exercise-card exercise-locked" id="exercise6">
       <div class="quiz-question-header">
         <div class="quiz-question-number">6</div>
         <div>
-          <h4 class="mb-0">Synthese</h4>
-          <p class="text-sm text-secondary mb-0">Quel header HTTP permet de limiter les sources de scripts autorisees ?</p>
+          <h4 class="mb-0">Header HTTP</h4>
+          <p class="text-sm text-secondary mb-0">Quel header HTTP permet de restreindre les sources de scripts autorisees ?</p>
         </div>
       </div>
 
-      <div class="quiz-options">
-        <div class="quiz-option" data-value="cors" onclick="selectQuizOption(this, 6)">
-          <span class="quiz-option-letter">A</span>
-          <span>Access-Control-Allow-Origin</span>
+      <div class="options-gate" id="gate6">
+        <span class="options-gate-text">&#129300; Ce header dit au navigateur quelles origines sont autorisees pour charger des ressources...</span>
+        <div class="options-gate-btns">
+          <button class="btn btn-sm" onclick="showHint(6)">&#128161; Indice</button>
+          <button class="btn btn-sm btn-primary" onclick="revealOptions(6)">Voir les propositions &#8595;</button>
         </div>
-        <div class="quiz-option" data-value="xframe" onclick="selectQuizOption(this, 6)">
-          <span class="quiz-option-letter">B</span>
-          <span>X-Frame-Options</span>
+      </div>
+      <div class="quiz-options options-hidden" id="options6">
+        <div class="quiz-option" data-value="cors" onclick="selectOption(this,6)">
+          <span class="quiz-option-letter">A</span><span>Access-Control-Allow-Origin</span>
         </div>
-        <div class="quiz-option" data-value="csp" onclick="selectQuizOption(this, 6)">
-          <span class="quiz-option-letter">C</span>
-          <span>Content-Security-Policy</span>
+        <div class="quiz-option" data-value="xframe" onclick="selectOption(this,6)">
+          <span class="quiz-option-letter">B</span><span>X-Frame-Options</span>
         </div>
-        <div class="quiz-option" data-value="xss" onclick="selectQuizOption(this, 6)">
-          <span class="quiz-option-letter">D</span>
-          <span>X-XSS-Protection</span>
+        <div class="quiz-option" data-value="csp" onclick="selectOption(this,6)">
+          <span class="quiz-option-letter">C</span><span>Content-Security-Policy</span>
+        </div>
+        <div class="quiz-option" data-value="xss" onclick="selectOption(this,6)">
+          <span class="quiz-option-letter">D</span><span>X-XSS-Protection</span>
         </div>
       </div>
 
-      <button class="btn btn-primary mt-md" onclick="checkQuiz(6, 'csp')">Valider ma reponse</button>
+      <button class="btn btn-primary mt-md options-hidden" id="btn-validate-6" onclick="checkQuiz(6,'csp')">Valider</button>
+      <div id="hint-area-6"></div>
       <div class="alert hidden mt-md" id="feedback6"></div>
+      <div class="next-btn-wrapper" id="next6">
+        <button class="btn btn-primary" onclick="goToNext(6)">Exercice suivant &#8594;</button>
+      </div>
     </div>
 
-    <!-- Resultats finaux -->
-    <div class="card card-success hidden" id="resultsCard">
+    <!-- ===================== EXERCICE 7 ===================== -->
+    <div class="quiz-question exercise-card exercise-locked" id="exercise7">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">7</div>
+        <div>
+          <h4 class="mb-0">L'acronyme XSS</h4>
+          <p class="text-sm text-secondary mb-0">Que signifie l'acronyme "XSS" ?</p>
+        </div>
+      </div>
+
+      <div class="text-answer-row">
+        <input type="text" class="text-answer-input" id="text-answer-7" placeholder="Ecrivez la signification complete..." autocomplete="off" onkeydown="if(event.key==='Enter') checkTextInput(7,['cross-site scripting','cross site scripting'])">
+        <button class="btn btn-primary" onclick="checkTextInput(7,['cross-site scripting','cross site scripting'])">Valider</button>
+      </div>
+      <div id="hint-area-7"></div>
+      <div class="alert hidden mt-md" id="feedback7"></div>
+      <div class="next-btn-wrapper" id="next7">
+        <button class="btn btn-primary" onclick="goToNext(7)">Exercice suivant &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ===================== EXERCICE 8 ===================== -->
+    <div class="quiz-question exercise-card exercise-locked" id="exercise8">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">8</div>
+        <div>
+          <h4 class="mb-0">Vecteur d'attaque image</h4>
+          <p class="text-sm text-secondary mb-0">Quel attribut HTML sur une balise <code>&lt;img&gt;</code> permet de declencher du JavaScript ?</p>
+        </div>
+      </div>
+
+      <div class="code-block mb-md">
+        <div class="code-block-header"><span class="code-block-lang">HTML</span></div>
+        <pre><code>&lt;img src="image_inexistante.jpg" ???="alert('XSS')"&gt;</code></pre>
+      </div>
+
+      <div class="text-answer-row">
+        <input type="text" class="text-answer-input" id="text-answer-8" placeholder="Nom de l'attribut HTML..." autocomplete="off" onkeydown="if(event.key==='Enter') checkTextInput(8,['onerror'])">
+        <button class="btn btn-primary" onclick="checkTextInput(8,['onerror'])">Valider</button>
+      </div>
+      <div id="hint-area-8"></div>
+      <div class="alert hidden mt-md" id="feedback8"></div>
+      <div class="next-btn-wrapper" id="next8">
+        <button class="btn btn-primary" onclick="goToNext(8)">Exercice suivant &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ===================== EXERCICE 9 ===================== -->
+    <div class="quiz-question exercise-card exercise-locked" id="exercise9">
+      <div class="quiz-question-header">
+        <div class="quiz-question-number">9</div>
+        <div>
+          <h4 class="mb-0">Protection des cookies</h4>
+          <p class="text-sm text-secondary mb-0">A quoi sert l'attribut <code>HttpOnly</code> sur un cookie ?</p>
+        </div>
+      </div>
+
+      <div class="options-gate" id="gate9">
+        <span class="options-gate-text">&#129300; Pensez au prefixe "Http" — que veut dire "Only" dans ce contexte ?</span>
+        <div class="options-gate-btns">
+          <button class="btn btn-sm" onclick="showHint(9)">&#128161; Indice</button>
+          <button class="btn btn-sm btn-primary" onclick="revealOptions(9)">Voir les propositions &#8595;</button>
+        </div>
+      </div>
+      <div class="quiz-options options-hidden" id="options9">
+        <div class="quiz-option" data-value="a" onclick="selectOption(this,9)">
+          <span class="quiz-option-letter">A</span><span>Forcer la connexion en HTTPS</span>
+        </div>
+        <div class="quiz-option" data-value="b" onclick="selectOption(this,9)">
+          <span class="quiz-option-letter">B</span><span>Empecher la lecture du cookie via <code>document.cookie</code> en JavaScript</span>
+        </div>
+        <div class="quiz-option" data-value="c" onclick="selectOption(this,9)">
+          <span class="quiz-option-letter">C</span><span>Chiffrer le contenu du cookie</span>
+        </div>
+        <div class="quiz-option" data-value="d" onclick="selectOption(this,9)">
+          <span class="quiz-option-letter">D</span><span>Limiter la duree de vie du cookie a 1 heure</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-md options-hidden" id="btn-validate-9" onclick="checkQuiz(9,'b')">Valider</button>
+      <div id="hint-area-9"></div>
+      <div class="alert hidden mt-md" id="feedback9"></div>
+      <div class="next-btn-wrapper" id="next9">
+        <!-- dernier exercice -->
+      </div>
+    </div>
+
+    <!-- ===================== RESULTATS ===================== -->
+    <div class="card card-success hidden mt-xl" id="resultsCard">
       <div class="card-header">
         <h4>&#127942; Resultats</h4>
       </div>
@@ -288,18 +538,17 @@
         <div class="score-display">
           <div class="score-circle">
             <span class="score-value" id="finalScore">0</span>
-            <span class="score-label">/ 6</span>
+            <span class="score-label">/ 9</span>
           </div>
-          <h3 id="resultMessage">Calcul en cours...</h3>
+          <h3 id="resultMessage"></h3>
         </div>
 
-        <h4 class="mb-md">&#128218; Points cles a retenir</h4>
+        <h4 class="mb-md mt-lg">&#128218; Points cles a retenir</h4>
         <ul class="checklist">
-          <li class="checklist-item">XSS permet d'executer du code malveillant dans le navigateur d'un utilisateur</li>
-          <li class="checklist-item">Le XSS Stocke est le plus dangereux car il affecte tous les visiteurs</li>
-          <li class="checklist-item">Toujours utiliser textContent au lieu de innerHTML pour afficher des donnees utilisateur</li>
-          <li class="checklist-item">Les contre-mesures incluent : echappement, CSP, HttpOnly, validation serveur</li>
-          <li class="checklist-item">Content-Security-Policy permet de limiter les sources de scripts autorisees</li>
+          <li class="checklist-item"><code>innerHTML</code> execute le HTML &mdash; utilisez <code>textContent</code> pour les donnees utilisateur</li>
+          <li class="checklist-item">Le XSS Stocke est le plus dangereux : il touche tous les visiteurs</li>
+          <li class="checklist-item">La validation cote client seule ne suffit JAMAIS, un attaquant peut la contourner</li>
+          <li class="checklist-item">CSP + HttpOnly + echappement = triple protection recommandee</li>
         </ul>
 
         <div class="flex justify-center gap-md mt-xl">
@@ -320,17 +569,71 @@
 
   <script src="/js/app.js"></script>
   <script>
-    // State
+    const TOTAL = 9;
     let score = 0;
-    let completed = [false, false, false, false, false, false];
+    let completed = new Array(TOTAL).fill(false);
     let selectedAnswers = {};
-    let timerInstance = null;
+    let hintIndex = {};      // hint index per exercise
     let timerPaused = false;
+    let timerInstance = null;
+
+    // Hints : 2 niveaux par exercice (de moins en moins subtil)
+    const hints = {
+      1: [
+        "Cherchez ou une variable provenant de l'utilisateur est inseree directement dans le DOM.",
+        "La methode <code>innerHTML</code> interprete le HTML brut &mdash; contrairement a <code>textContent</code>."
+      ],
+      2: [
+        "Pensez a quel type de XSS necessite une base de donnees pour persister.",
+        "Le XSS Stocke est enregistre cote serveur et s'execute pour chaque visiteur de la page."
+      ],
+      3: [
+        "Regardez quelles methodes inserent du HTML brut vs du texte.",
+        "<code>innerHTML</code> est vulnerable, <code>textContent</code> et <code>innerText</code> sont securises."
+      ],
+      4: [
+        "<code>escape()</code> est une ancienne fonction JS qui n'echappe pas le HTML. Elle ne protege pas contre XSS.",
+        "La solution la plus simple est d'utiliser une propriete qui n'interprete jamais le HTML."
+      ],
+      5: [
+        "Le JavaScript s'execute dans le navigateur de la victime, pas sur le serveur. Qu'est-ce qui est accessible depuis un navigateur ?",
+        "Via JavaScript, on peut lire document.cookie. Le cookie de session permet de se connecter en tant que la victime."
+      ],
+      6: [
+        "Ce header indique au navigateur quelles sources sont autorisees pour chaque type de ressource.",
+        "CSP = Content Security Policy. Il definit les origines autorisees pour les scripts, styles, images, etc."
+      ],
+      7: [
+        "CSS = Cascading Style Sheets. XSS ressemble a CSS mais n'a rien a voir avec les styles.",
+        "Le 'X' vient de 'Cross' (= croise, entre sites). Le 'SS' vient de 'Site Scripting'."
+      ],
+      8: [
+        "Quand une image ne se charge pas, le navigateur declenche un evenement. Quel est son nom ?",
+        "L'attribut <code>onerror</code> s'execute automatiquement quand la ressource ne peut pas etre chargee."
+      ],
+      9: [
+        "Le prefixe 'Http' dans 'HttpOnly' indique que le cookie est accessible uniquement via le protocole HTTP.",
+        "HttpOnly empeche JavaScript d'acceder au cookie. Ainsi, meme si un XSS s'execute, il ne peut pas lire les cookies de session."
+      ]
+    };
+
+    // Explications affichees apres bonne reponse
+    const explanations = {
+      1: "Correct ! <code>innerHTML = username</code> insere le contenu utilisateur comme du HTML brut &mdash; un attaquant peut y glisser <code>&lt;script&gt;</code> ou <code>&lt;img onerror&gt;</code>.",
+      2: "Exact ! Le XSS Stocke est sauvegarde en base de donnees et s'execute pour TOUS les visiteurs, pas seulement celui qui a envoye le payload.",
+      3: "Correct ! Les lignes 1 et 3 utilisent <code>innerHTML</code> (vulnerable). Les lignes 2 et 4 utilisent <code>textContent</code> / <code>innerText</code> (securises).",
+      4: "Exact ! <code>textContent</code> insere le contenu comme du texte brut, sans jamais interpreter le HTML. Simple et efficace.",
+      5: "Exact ! XSS donne acces au navigateur de la victime, pas au serveur. L'attaque classique : voler le cookie de session via document.cookie pour usurper l'identite sans connaitre le mot de passe.",
+      6: "Exact ! <code>Content-Security-Policy</code> permet de dire au navigateur : 'n'execute que les scripts provenant de ces origines autorisees'.",
+      7: "Correct ! XSS = Cross-Site Scripting. Le 'X' remplace 'Cross' pour eviter la confusion avec CSS (Cascading Style Sheets).",
+      8: "Exact ! <code>onerror</code> s'execute quand l'image echoue a se charger. En mettant <code>src=\"x\"</code> (image invalide), l'evenement se declenche immediatement.",
+      9: "Parfait ! <code>HttpOnly</code> empeche JavaScript de lire le cookie via <code>document.cookie</code>. C'est une protection cle contre le vol de session par XSS."
+    };
 
     // Timer
     const timerElement = document.getElementById('timer');
-    timerInstance = new Timer(timerElement, 20 * 60, () => {
-      ToastManager.warning('Temps ecoule ! Vous pouvez continuer a votre rythme.', 5000);
+    timerInstance = new Timer(timerElement, 30 * 60, () => {
+      ToastManager.warning('Temps ecoule ! Continuez a votre rythme.', 5000);
     });
     timerInstance.start();
 
@@ -347,218 +650,282 @@
       }
     }
 
-    // Update progress
+    // ---- STEPPER & PROGRESS ----
     function updateProgress() {
-      const completedCount = completed.filter(Boolean).length;
-      const percent = (completedCount / 6) * 100;
+      const done = completed.filter(Boolean).length;
+      document.getElementById('progressBar').style.width = `${(done / TOTAL) * 100}%`;
+      document.getElementById('progressText').textContent = `${done} / ${TOTAL} exercices`;
 
-      document.getElementById('progressBar').style.width = `${percent}%`;
-      document.getElementById('progressText').textContent = `${completedCount} / 6 exercices`;
-
-      // Update stepper
-      const steps = document.querySelectorAll('.stepper-step');
-      steps.forEach((step, index) => {
-        step.classList.remove('active', 'completed');
-        if (completed[index]) {
-          step.classList.add('completed');
-        }
+      document.querySelectorAll('.stepper-item').forEach((item, i) => {
+        item.classList.remove('active', 'completed');
+        if (completed[i]) item.classList.add('completed');
       });
+      const next = completed.findIndex(c => !c);
+      if (next >= 0) document.querySelector(`[data-step="${next + 1}"]`).classList.add('active');
 
-      // Find next incomplete
-      const nextIncomplete = completed.findIndex(c => !c);
-      if (nextIncomplete >= 0) {
-        steps[nextIncomplete].classList.add('active');
-      }
+      if (done === TOTAL) showResults();
+    }
 
-      // Check if all completed
-      if (completedCount === 6) {
-        showResults();
+    // ---- HINT SYSTEM ----
+    function showHint(exerciseNum) {
+      if (!hintIndex[exerciseNum]) hintIndex[exerciseNum] = 0;
+      const list = hints[exerciseNum];
+      const area = document.getElementById(`hint-area-${exerciseNum}`);
+
+      if (hintIndex[exerciseNum] >= list.length) return;
+
+      const hint = list[hintIndex[exerciseNum]];
+      hintIndex[exerciseNum]++;
+
+      const levelLabel = hintIndex[exerciseNum] === 1 ? 'Indice' : 'Indice supplementaire';
+      const hasMore = hintIndex[exerciseNum] < list.length;
+
+      area.innerHTML = `
+        <div class="hint-box">
+          <div class="hint-label">&#128161; ${levelLabel} ${hintIndex[exerciseNum]} / ${list.length}</div>
+          <div class="hint-text">${hint}</div>
+          ${hasMore ? `<button class="btn btn-sm mt-sm" onclick="showHint(${exerciseNum})">Indice suivant &#8594;</button>` : ''}
+        </div>`;
+    }
+
+    function renderHintButton(exerciseNum) {
+      const area = document.getElementById(`hint-area-${exerciseNum}`);
+      area.innerHTML = `<button class="btn btn-sm mt-md" style="opacity:0.7" onclick="showHint(${exerciseNum})">&#128161; Besoin d'un indice ?</button>`;
+    }
+
+    // ---- EXERCISE NAVIGATION ----
+    function goToNext(exerciseNum) {
+      const nextNum = exerciseNum + 1;
+      if (nextNum > TOTAL) return;
+      const nextEl = document.getElementById(`exercise${nextNum}`);
+      nextEl.classList.remove('exercise-locked');
+      nextEl.classList.add('exercise-reveal');
+      nextEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function markCorrect(exerciseNum) {
+      if (completed[exerciseNum - 1]) return;
+      score++;
+      completed[exerciseNum - 1] = true;
+      updateProgress();
+
+      // Show next button (or results if last)
+      const nextWrapper = document.getElementById(`next${exerciseNum}`);
+      if (exerciseNum === TOTAL) {
+        // Last exercise: results shown via updateProgress -> showResults
+      } else {
+        nextWrapper.style.display = 'block';
       }
     }
 
-    // Code spot click (Exercise 1)
+    // ---- REVEAL OPTIONS (gate) ----
+    function revealOptions(n) {
+      const gate = document.getElementById(`gate${n}`);
+      if (gate) gate.style.display = 'none';
+      document.querySelectorAll(`#exercise${n} .options-hidden`).forEach(el => el.classList.remove('options-hidden'));
+    }
+
+    // ---- TEXT INPUT CHECK ----
+    function checkTextInput(exerciseNum, correctAnswers) {
+      if (completed[exerciseNum - 1]) return;
+      const input = document.getElementById(`text-answer-${exerciseNum}`);
+      const feedback = document.getElementById(`feedback${exerciseNum}`);
+      const val = input.value.trim().toLowerCase();
+      if (!val) { ToastManager.warning('Entrez une reponse.', 2000); return; }
+
+      const isCorrect = correctAnswers.some(a => val === a.toLowerCase());
+      if (isCorrect) {
+        input.disabled = true;
+        input.style.borderColor = 'var(--color-success, #10b981)';
+        feedback.className = 'alert alert-success mt-md';
+        feedback.innerHTML = `<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">${explanations[exerciseNum]}</p></div>`;
+        ToastManager.success('Bonne reponse !', 2000);
+        markCorrect(exerciseNum);
+      } else {
+        input.style.borderColor = 'var(--color-danger, #ef4444)';
+        feedback.className = 'alert alert-danger mt-md';
+        feedback.innerHTML = `<span class="alert-icon">&#10006;</span><div class="alert-content"><p class="alert-message">Pas tout a fait — verifiez l'orthographe et reessayez.</p></div>`;
+        ToastManager.danger('Mauvaise reponse', 2000);
+        setTimeout(() => { input.style.borderColor = ''; }, 1400);
+        if (!hintIndex[exerciseNum]) renderHintButton(exerciseNum);
+      }
+      feedback.classList.remove('hidden');
+    }
+
+    // ---- EXERCISE 1: Code spot ----
     function checkCodeSpot(element, exerciseNum) {
       if (completed[exerciseNum - 1]) return;
 
-      const allSpots = element.parentElement.querySelectorAll('.code-spot');
-      allSpots.forEach(spot => {
-        spot.classList.remove('vulnerable', 'safe');
-        if (spot.dataset.vulnerable === 'true') {
-          spot.classList.add('vulnerable');
-        } else {
-          spot.classList.add('safe');
-        }
-      });
-
       const isCorrect = element.dataset.vulnerable === 'true';
       const feedback = document.getElementById(`feedback${exerciseNum}`);
-      feedback.classList.remove('hidden', 'alert-success', 'alert-danger');
 
       if (isCorrect) {
-        score++;
+        element.classList.add('highlight-correct');
         feedback.className = 'alert alert-success';
-        feedback.innerHTML = '<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">Correct ! La ligne <code>innerHTML = username</code> est vulnerable car elle insere le contenu utilisateur sans echappement.</p></div>';
+        feedback.innerHTML = `<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">${explanations[exerciseNum]}</p></div>`;
         ToastManager.success('Bonne reponse !', 2000);
+        markCorrect(exerciseNum);
       } else {
+        element.classList.add('highlight-wrong');
         feedback.className = 'alert alert-danger';
-        feedback.innerHTML = '<span class="alert-icon">&#10006;</span><div class="alert-content"><p class="alert-message">Incorrect. La ligne vulnerable est <code>innerHTML = username</code> car elle insere directement le contenu utilisateur.</p></div>';
-        ToastManager.danger('Mauvaise reponse', 2000);
+        feedback.innerHTML = `<span class="alert-icon">&#10006;</span><div class="alert-content"><p class="alert-message">Pas tout a fait. Cherchez ou les donnees utilisateur arrivent directement dans le DOM.</p></div>`;
+        ToastManager.danger('Essayez une autre ligne.', 2000);
+
+        // Reset highlight after a moment, allow retry
+        setTimeout(() => element.classList.remove('highlight-wrong'), 1200);
+
+        // Show hint button if not already shown
+        if (!hintIndex[exerciseNum]) renderHintButton(exerciseNum);
       }
 
-      completed[exerciseNum - 1] = true;
-      updateProgress();
+      feedback.classList.remove('hidden');
     }
 
-    // Quiz option selection
-    function selectQuizOption(element, exerciseNum) {
+    // ---- SINGLE QCM ----
+    function selectOption(element, exerciseNum) {
       if (completed[exerciseNum - 1]) return;
-
-      const options = element.parentElement.querySelectorAll('.quiz-option');
-      options.forEach(opt => opt.classList.remove('selected'));
+      element.closest('.quiz-options').querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
       element.classList.add('selected');
       selectedAnswers[exerciseNum] = element.dataset.value;
     }
 
-    // Multi-select toggle
-    function toggleMultiOption(element) {
-      if (completed[4]) return;
-      element.classList.toggle('selected');
-    }
-
-    // Check single quiz
     function checkQuiz(exerciseNum, correctAnswer) {
       if (completed[exerciseNum - 1]) return;
 
       const selected = selectedAnswers[exerciseNum];
-      if (!selected) {
-        ToastManager.warning('Selectionnez une reponse', 2000);
-        return;
-      }
+      if (!selected) { ToastManager.warning('Selectionnez une reponse.', 2000); return; }
 
       const options = document.querySelectorAll(`#exercise${exerciseNum} .quiz-option`);
-      options.forEach(opt => {
-        if (opt.dataset.value === correctAnswer) {
-          opt.classList.add('correct');
-        } else if (opt.dataset.value === selected && selected !== correctAnswer) {
-          opt.classList.add('incorrect');
-        }
-      });
-
-      const isCorrect = selected === correctAnswer;
       const feedback = document.getElementById(`feedback${exerciseNum}`);
-      feedback.classList.remove('hidden');
-
-      const explanations = {
-        2: 'Le XSS Stocke est sauvegarde dans la base de donnees et s\'execute pour TOUS les utilisateurs qui visitent la page.',
-        3: 'Les lignes avec innerHTML (titre et corps) sont vulnerables. textContent et innerText sont securises.',
-        4: 'textContent affiche le contenu comme du texte brut, sans interpreter le HTML.',
-        6: 'Content-Security-Policy permet de definir les sources autorisees pour les scripts, styles, etc.'
-      };
+      const isCorrect = selected === correctAnswer;
 
       if (isCorrect) {
-        score++;
-        feedback.className = 'alert alert-success';
-        feedback.innerHTML = `<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">Correct ! ${explanations[exerciseNum]}</p></div>`;
+        options.forEach(o => { if (o.dataset.value === correctAnswer) o.classList.add('correct'); });
+        feedback.className = 'alert alert-success mt-md';
+        feedback.innerHTML = `<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">${explanations[exerciseNum]}</p></div>`;
         ToastManager.success('Bonne reponse !', 2000);
+        markCorrect(exerciseNum);
       } else {
-        feedback.className = 'alert alert-danger';
-        feedback.innerHTML = `<span class="alert-icon">&#10006;</span><div class="alert-content"><p class="alert-message">Incorrect. ${explanations[exerciseNum]}</p></div>`;
+        options.forEach(o => { if (o.dataset.value === selected) o.classList.add('incorrect'); });
+        feedback.className = 'alert alert-danger mt-md';
+        feedback.innerHTML = `<span class="alert-icon">&#10006;</span><div class="alert-content"><p class="alert-message">Pas tout a fait. Relisez bien l'enonce et reessayez.</p></div>`;
         ToastManager.danger('Mauvaise reponse', 2000);
+
+        // Reset selection + incorrect highlight to allow retry
+        setTimeout(() => {
+          options.forEach(o => o.classList.remove('selected', 'incorrect'));
+          selectedAnswers[exerciseNum] = null;
+        }, 1400);
+
+        if (!hintIndex[exerciseNum]) renderHintButton(exerciseNum);
       }
 
-      completed[exerciseNum - 1] = true;
-      updateProgress();
+      feedback.classList.remove('hidden');
     }
 
-    // Check multi-select quiz
+    // ---- MULTI-SELECT QCM ----
+    function toggleMultiOption(element, exerciseNum) {
+      if (completed[exerciseNum - 1]) return;
+      element.classList.toggle('selected');
+    }
+
     function checkMultiQuiz(exerciseNum) {
       if (completed[exerciseNum - 1]) return;
 
       const options = document.querySelectorAll(`#quiz${exerciseNum}Options .quiz-option`);
-      let correct = 0;
-      let total = 0;
+      const feedback = document.getElementById(`feedback${exerciseNum}`);
 
+      let correctCount = 0, totalCorrect = 0, wrongSelected = false;
       options.forEach(opt => {
         const isCorrect = opt.dataset.correct === 'true';
         const isSelected = opt.classList.contains('selected');
-
-        if (isCorrect) {
-          total++;
-          opt.classList.add('correct');
-          if (isSelected) correct++;
-        } else if (isSelected) {
-          opt.classList.add('incorrect');
-        }
+        if (isCorrect) { totalCorrect++; if (isSelected) correctCount++; }
+        if (!isCorrect && isSelected) wrongSelected = true;
       });
 
-      const feedback = document.getElementById(`feedback${exerciseNum}`);
-      feedback.classList.remove('hidden');
+      const perfect = correctCount === totalCorrect && !wrongSelected;
 
-      if (correct === total && !Array.from(options).some(o => o.classList.contains('incorrect'))) {
-        score++;
-        feedback.className = 'alert alert-success';
-        feedback.innerHTML = '<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">Parfait ! Echappement, CSP et HttpOnly sont les bonnes pratiques. La validation cote client seule ne suffit JAMAIS.</p></div>';
+      if (perfect) {
+        options.forEach(o => { if (o.dataset.correct === 'true') o.classList.add('correct'); });
+        feedback.className = 'alert alert-success mt-md';
+        feedback.innerHTML = `<span class="alert-icon">&#10004;</span><div class="alert-content"><p class="alert-message">${explanations[exerciseNum]}</p></div>`;
         ToastManager.success('Bonne reponse !', 2000);
+        markCorrect(exerciseNum);
       } else {
-        feedback.className = 'alert alert-warning';
-        feedback.innerHTML = '<span class="alert-icon">&#9888;</span><div class="alert-content"><p class="alert-message">Partiellement correct. La validation cote client seule ne suffit JAMAIS car elle peut etre contournee.</p></div>';
-        ToastManager.warning('Reponse partielle', 2000);
+        feedback.className = 'alert alert-danger mt-md';
+        feedback.innerHTML = `<span class="alert-icon">&#10006;</span><div class="alert-content"><p class="alert-message">Pas tout a fait. Pensez a ce qu'un attaquant peut facilement contourner.</p></div>`;
+        ToastManager.danger('Selection incorrecte', 2000);
+
+        setTimeout(() => {
+          options.forEach(o => o.classList.remove('selected', 'correct', 'incorrect'));
+        }, 1400);
+
+        if (!hintIndex[exerciseNum]) renderHintButton(exerciseNum);
       }
 
-      completed[exerciseNum - 1] = true;
-      updateProgress();
+      feedback.classList.remove('hidden');
     }
 
-    // Show results
+    // ---- RESULTS ----
     function showResults() {
-      timerInstance.pause();
-
-      document.getElementById('resultsCard').classList.remove('hidden');
+      if (timerInstance) timerInstance.pause();
+      const card = document.getElementById('resultsCard');
+      card.classList.remove('hidden');
       document.getElementById('finalScore').textContent = score;
 
       const messages = {
-        6: '&#127942; Excellent ! Vous maitrisez les bases de la securite XSS !',
-        5: '&#127881; Tres bien ! Vous avez une bonne comprehension de XSS.',
-        4: '&#128077; Bien ! Quelques points a revoir.',
-        3: '&#128172; Correct. Revoyez les concepts non maitrises.',
-        2: '&#128214; A ameliorer. Relisez les chapitres.',
-        1: '&#128218; Besoin de pratique. Recommencez l\'activite.',
-        0: '&#128218; N\'abandonnez pas ! Relisez les cours.'
+        9: '&#127942; Parfait ! Vous maitrisez les bases XSS.',
+        8: '&#127881; Excellent ! Presque parfait.',
+        7: '&#128077; Tres bien ! Un point a revoir.',
+        6: '&#128077; Bien ! Relisez les points manques.',
+        5: '&#128172; Correct. Repassez les chapitres.',
       };
-
-      document.getElementById('resultMessage').innerHTML = messages[score] || messages[0];
-
-      // Scroll to results
-      document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('resultMessage').innerHTML = messages[score] || messages[5];
+      card.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Reset activity
+    // ---- RESET ----
     function resetActivity() {
       score = 0;
-      completed = [false, false, false, false, false, false];
+      completed = new Array(TOTAL).fill(false);
       selectedAnswers = {};
+      hintIndex = {};
 
-      // Reset UI
-      document.querySelectorAll('.quiz-option').forEach(opt => {
-        opt.classList.remove('selected', 'correct', 'incorrect');
-      });
-      document.querySelectorAll('.code-spot').forEach(spot => {
-        spot.classList.remove('vulnerable', 'safe');
-      });
-      document.querySelectorAll('[id^="feedback"]').forEach(fb => {
-        fb.classList.add('hidden');
-      });
+      document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected','correct','incorrect'));
+      document.querySelectorAll('.code-spot').forEach(s => s.classList.remove('highlight-correct','highlight-wrong'));
+      document.querySelectorAll('[id^="feedback"]').forEach(f => f.classList.add('hidden'));
+      document.querySelectorAll('[id^="hint-area-"]').forEach(h => h.innerHTML = '');
+      document.querySelectorAll('.next-btn-wrapper').forEach(n => n.style.display = 'none');
       document.getElementById('resultsCard').classList.add('hidden');
 
-      // Reset timer
-      timerInstance.reset();
-      timerInstance.start();
+      // Reinitialiser gates + options cachees + text inputs
+      for (let i = 2; i <= TOTAL; i++) {
+        const gate = document.getElementById(`gate${i}`);
+        if (gate) gate.style.display = '';
+        document.querySelectorAll(`#exercise${i} .quiz-options`).forEach(el => el.classList.add('options-hidden'));
+        const btn = document.getElementById(`btn-validate-${i}`);
+        if (btn) btn.classList.add('options-hidden');
+        const textInput = document.getElementById(`text-answer-${i}`);
+        if (textInput) { textInput.value = ''; textInput.disabled = false; textInput.style.borderColor = ''; }
+      }
+
+      // Relockez les exercices 2-10
+      for (let i = 2; i <= TOTAL; i++) {
+        const el = document.getElementById(`exercise${i}`);
+        el.classList.add('exercise-locked');
+        el.classList.remove('exercise-reveal');
+      }
+
+      if (timerInstance) { timerInstance.reset(); timerInstance.start(); }
       timerPaused = false;
       document.getElementById('timerBtn').innerHTML = '&#9208; Pause';
 
       updateProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // Init
+    updateProgress();
   </script>
 </body>
 </html>

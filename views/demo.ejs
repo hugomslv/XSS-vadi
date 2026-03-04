@@ -138,7 +138,7 @@
               <div class="code-block">
                 <pre><code>&lt;script&gt;alert('XSS Demo')&lt;/script&gt;</code></pre>
               </div>
-              <button class="btn btn-sm btn-warning" onclick="loadPayload('&lt;script&gt;alert(\\'XSS Demo\\')&lt;/script&gt;')">
+              <button class="btn btn-sm btn-warning" data-payload="<script>alert('XSS Demo')</script>" onclick="loadPayload(this.dataset.payload)">
                 Tester
               </button>
               <p class="text-xs text-muted mt-sm">Note: Les scripts inline ne s'executent pas via innerHTML</p>
@@ -151,13 +151,14 @@
               <div class="code-block">
                 <pre><code>&lt;img src="x" onerror="alert('XSS')"&gt;</code></pre>
               </div>
-              <button class="btn btn-sm btn-danger" onclick="loadPayload('&lt;img src=&quot;x&quot; onerror=&quot;alert(\\'XSS via image\\')&quot;&gt;')">
+              <button class="btn btn-sm btn-danger" data-payload='<img src="x" onerror="alert(&#39;XSS via image&#39;)">' onclick="loadPayload(this.dataset.payload)">
                 Tester
               </button>
               <p class="text-xs text-muted mt-sm">Cette methode execute le JavaScript !</p>
             </div>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -249,6 +250,13 @@
 
       // Rendu vulnerable (HTML interprete)
       vulnerableOutput.innerHTML = input;
+      // Les balises <script> injectées via innerHTML ne s'exécutent pas nativement,
+      // on les réexécute pour simuler le comportement réel d'une page vulnérable
+      vulnerableOutput.querySelectorAll('script').forEach(oldScript => {
+        const newScript = document.createElement('script');
+        newScript.textContent = oldScript.textContent;
+        oldScript.replaceWith(newScript);
+      });
 
       // Rendu securise (texte echappe)
       secureOutput.textContent = input;

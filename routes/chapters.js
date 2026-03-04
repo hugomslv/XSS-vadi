@@ -24,13 +24,21 @@ router.get('/chapter/:id', requireAuth, (req, res) => {
   const posts = jsonStore.getPostsByChapter(chapterId);
   const comments = jsonStore.getCommentsByChapter(chapterId);
   const globalComments = jsonStore.getGlobalAdminComments();
+  const allChapters = jsonStore.getChapters().sort((a, b) => a.order - b.order);
+  const currentIndex = allChapters.findIndex(c => c.id === chapterId);
+  const prevChapter = currentIndex > 0 ? allChapters[currentIndex - 1] : null;
+  const nextChapter = currentIndex < allChapters.length - 1 ? allChapters[currentIndex + 1] : null;
 
   res.render('chapter', {
     title: chapter.title,
     chapter,
     posts,
     comments,
-    globalComments
+    globalComments,
+    prevChapter,
+    nextChapter,
+    currentIndex,
+    totalChapters: allChapters.length
   });
 });
 

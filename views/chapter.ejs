@@ -124,7 +124,7 @@
               <div class="xss-post-content">
                 <% if (post.safe) { %>
                   <%= post.content %>
-                <% } else { %>
+                <% } else if (post.author === user) { %>
                   <div class="alert alert-danger mb-md">
                     <span class="alert-icon">&#9888;</span>
                     <div class="alert-content">
@@ -132,6 +132,13 @@
                     </div>
                   </div>
                   <%- post.content %>
+                <% } else { %>
+                  <div class="alert alert-info mb-md">
+                    <div class="alert-content">
+                      <p class="alert-message text-sm">Payload UNSAFE de <strong><%= post.author %></strong> — s'execute uniquement pour son auteur.</p>
+                    </div>
+                  </div>
+                  <code><%= post.content %></code>
                 <% } %>
               </div>
             </div>
@@ -210,10 +217,28 @@
       </div>
     </div>
 
-    <!-- Navigation -->
-    <div class="flex justify-between mt-xl">
-      <a href="/chapters" class="btn">&#8592; Retour aux chapitres</a>
-      <a href="/demo" class="btn btn-primary">Demo interactive &#8594;</a>
+    <!-- Navigation chapitres -->
+    <div class="flex justify-between items-center mt-xl">
+      <% const _prev = typeof prevChapter !== 'undefined' ? prevChapter : null; %>
+      <% const _next = typeof nextChapter !== 'undefined' ? nextChapter : null; %>
+      <% const _idx  = typeof currentIndex !== 'undefined' ? currentIndex : null; %>
+      <% const _tot  = typeof totalChapters !== 'undefined' ? totalChapters : null; %>
+
+      <% if (_prev) { %>
+        <a href="/chapter/<%= _prev.id %>" class="btn">&#8592; <%= _prev.title.replace(/^Chapitre \d+ : /, '') %></a>
+      <% } else { %>
+        <a href="/chapters" class="btn">&#8592; Liste des chapitres</a>
+      <% } %>
+
+      <% if (_idx !== null) { %>
+        <span class="text-sm text-muted">Chapitre <%= _idx + 1 %> / <%= _tot %></span>
+      <% } %>
+
+      <% if (_next) { %>
+        <a href="/chapter/<%= _next.id %>" class="btn btn-primary"><%= _next.title.replace(/^Chapitre \d+ : /, '') %> &#8594;</a>
+      <% } else { %>
+        <a href="/demo" class="btn btn-primary">Demo interactive &#8594;</a>
+      <% } %>
     </div>
   </main>
 

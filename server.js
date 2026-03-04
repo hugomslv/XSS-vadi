@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 // Session
 app.use(session({
+  store: new FileStore({ path: './sessions', retries: 1 }),
   secret: 'xss-demo-secret-key-do-not-use-in-prod',
   resave: false,
   saveUninitialized: false,
