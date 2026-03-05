@@ -8,12 +8,31 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .exercise-stepper { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .stepper-item { padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: var(--color-bg-secondary); color: var(--color-text-muted); border: 2px solid transparent; text-decoration: none; }
+    .stepper-item.active { background: var(--color-warning-bg, #fff3cd); color: var(--color-warning, #856404); border-color: var(--color-warning, #ffc107); }
+    .stepper-item.done { background: var(--color-success-bg, #d1e7dd); color: var(--color-success, #0f5132); }
+    .hint-item { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .choice-btn { width: 100%; text-align: left; padding: 12px 16px; border: 2px solid var(--color-border); background: var(--color-bg-secondary); }
+    .choice-btn.selected { border-color: var(--color-primary); background: var(--color-primary-bg, #cfe2ff); }
+    .choice-btn.correct { border-color: var(--color-success); background: var(--color-success-bg, #d1e7dd); }
+    .choice-btn.wrong { border-color: var(--color-danger); background: var(--color-danger-bg, #f8d7da); }
+    .simulated-page { border: 2px dashed var(--color-warning, #ffc107); border-radius: 8px; padding: 16px; background: var(--color-bg-secondary); }
+    .url-bar { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 6px; padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #alertContainer { background: #1e1e2e; border: 1px solid #ffc107; border-radius: 8px; overflow: hidden; }
+    .alert-intercept-header { background: #ffc107; color: #1e1e2e; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; letter-spacing: 0.05em; }
+    .alert-intercepted { padding: 8px 12px; font-size: 0.8rem; color: #e2e8f0; font-family: 'JetBrains Mono', monospace; word-break: break-all; border-top: 1px solid rgba(255,199,7,0.2); }
+    .alert-intercepted + .alert-intercepted { border-top: 1px solid rgba(255,255,255,0.08); }
+    .alert-intercept-label { color: #ffc107; font-weight: 700; display: block; margin-bottom: 2px; font-size: 0.7rem; }
+    #validationResult { transition: all 0.3s ease; }
+  </style>
 </head>
 <body>
   <% const currentPage = 'chapters'; %>
   <%- include('partials/navbar') %>
 
-  <!-- Banner d'avertissement -->
   <div class="alert alert-warning alert-banner">
     <span class="alert-icon">&#9888;</span>
     <div class="alert-content">
@@ -29,195 +48,267 @@
       <span class="breadcrumb-item active"><%= chapter.title %></span>
     </nav>
 
-    <div class="flex items-center justify-between mb-lg">
-      <h1><%= chapter.title %></h1>
-      <span id="refreshIndicator" class="badge badge-success" style="cursor: pointer;" onclick="toggleAutoRefresh()" title="Rafraichissement auto active">
-        &#128260; Auto
-      </span>
+    <!-- Stepper -->
+    <div class="exercise-stepper">
+      <% const allChaptersStepper = Array.from({length: totalChapters}, (_, i) => i); %>
+      <% allChaptersStepper.forEach(i => { %>
+        <a href="/chapter/chapter<%= i + 1 %>"
+           class="stepper-item <%= i === currentIndex ? 'active' : '' %>">
+          <%= i + 1 %>
+        </a>
+      <% }); %>
     </div>
 
-    <!-- Objectif du chapitre -->
-    <div class="chapter-objective">
-      <span class="chapter-objective-icon">&#127919;</span>
+    <!-- Title -->
+    <div class="flex items-center justify-between mb-lg">
       <div>
-        <strong class="text-primary">Objectif :</strong>
-        <span class="text-secondary"><%= chapter.instructions %></span>
+        <div class="text-sm text-muted mb-sm">Exercice <%= currentIndex + 1 %> / <%= totalChapters %></div>
+        <h1><%= chapter.title %></h1>
       </div>
     </div>
 
-    <!-- Contenu du cours -->
+    <!-- Objective -->
+    <% if (exercise) { %>
+    <div class="chapter-objective mb-xl">
+      <span class="chapter-objective-icon">&#127919;</span>
+      <div>
+        <strong class="text-primary">Objectif :</strong>
+        <span class="text-secondary"><%= exercise.goal %></span>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Global admin comments -->
+    <% if (globalComments.length > 0) { %>
     <div class="card card-primary mb-lg">
       <div class="card-header">
-        <h4>&#128214; Contenu du cours</h4>
+        <h4>&#128227; Annonces de l'administrateur</h4>
+      </div>
+      <div class="card-body">
+        <% globalComments.forEach(comment => { %>
+          <div class="alert alert-info mb-md">
+            <div class="alert-content">
+              <div class="flex justify-between items-center mb-sm">
+                <strong>&#128100; Administrateur</strong>
+                <span class="text-xs text-muted"><%= new Date(comment.timestamp).toLocaleString('fr-FR') %></span>
+              </div>
+              <div class="mt-sm"><%- comment.content %></div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Theory card -->
+    <div class="card card-primary mb-lg">
+      <div class="card-header">
+        <h4>&#128214; Cours</h4>
       </div>
       <div class="card-body">
         <%- chapter.content %>
       </div>
     </div>
 
-    <!-- Zone de test XSS -->
-    <div class="card card-warning mb-lg">
+    <% if (exercise) { %>
+
+    <!-- Exercise card -->
+    <div class="card card-warning mb-lg" id="exerciseCard">
       <div class="card-header">
-        <h4>&#129514; Zone de test</h4>
+        <h4>&#129514; Exercice</h4>
       </div>
       <div class="card-body">
-        <form method="POST" action="/chapter/<%= chapter.id %>/post" id="postForm">
-          <div class="form-group">
-            <label for="content" class="form-label">Message a poster :</label>
+
+        <!-- Instructions -->
+        <div class="alert alert-info mb-lg">
+          <span class="alert-icon">&#128203;</span>
+          <div class="alert-content">
+            <p class="alert-message"><%= exercise.instructions %></p>
+          </div>
+        </div>
+
+        <!-- CHOICE type (exercise 7) -->
+        <% if (exercise.validator.type === 'choice') { %>
+
+          <div class="form-group mb-md">
+            <label class="form-label">Payload XSS charge :</label>
+            <div class="code-block"><pre><code><%- exercise.partialExample %></code></pre></div>
+          </div>
+
+          <div class="mb-md">
+            <label class="form-label">Apercu du rendu selon la methode choisie :</label>
+            <div id="choicePreview" class="card" style="min-height:60px">
+              <div class="card-body text-muted text-sm">Selectionnez une methode ci-dessous...</div>
+            </div>
+          </div>
+
+          <div class="mb-md" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <button class="btn choice-btn" id="choice-a" onclick="selectChoice('a')">
+              <strong>A.</strong> <code>innerHTML</code><br><span class="text-xs text-muted">Rendu HTML brut</span>
+            </button>
+            <button class="btn choice-btn" id="choice-b" onclick="selectChoice('b')">
+              <strong>B.</strong> <code>textContent</code><br><span class="text-xs text-muted">Texte brut uniquement</span>
+            </button>
+            <button class="btn choice-btn" id="choice-c" onclick="selectChoice('c')">
+              <strong>C.</strong> <code>innerHTML</code> + filtre<br><span class="text-xs text-muted">Blacklist de mots-cles</span>
+            </button>
+          </div>
+
+          <div id="alertContainer" class="mb-md" style="display:none"></div>
+
+        <!-- STORED XSS type (exercise 4) -->
+        <% } else if (exercise.validator.type === 'storedXss') { %>
+
+          <div class="form-group mb-md">
+            <label for="exerciseInput" class="form-label">Payload a poster :</label>
             <textarea
-              class="form-textarea"
-              id="content"
-              name="content"
-              rows="4"
-              required
-              placeholder="Essayez d'injecter du HTML ou JavaScript ici..."
-            ></textarea>
-            <span class="form-hint">
-              Exemples : <code>&lt;strong&gt;gras&lt;/strong&gt;</code> ou <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
-            </span>
+              class="form-textarea font-mono"
+              id="exerciseInput"
+              rows="3"
+              placeholder="Entrez votre payload XSS..."><%= exercise.partialExample %></textarea>
           </div>
 
-          <!-- Toggle Safe/Unsafe -->
-          <div class="xss-mode-toggle">
-            <label class="form-switch">
-              <input type="checkbox" class="form-switch-input" id="safeMode" name="safe" value="true">
-              <span class="form-switch-slider"></span>
-              <span class="form-switch-label">Mode SAFE</span>
-            </label>
-            <div id="modeIndicator" class="xss-mode-indicator unsafe">
-              &#9888; UNSAFE - Le HTML/JS sera execute
+          <div class="flex gap-md mb-lg" style="flex-wrap:wrap">
+            <button class="btn btn-warning" onclick="addStoredPost()">&#128228; Poster dans les commentaires</button>
+            <button class="btn" id="reloadBtn" onclick="simulateReload()" style="display:none">&#128260; Simuler rechargement</button>
+          </div>
+
+          <div id="simulatedCommentsCard" class="card mb-md" style="display:none">
+            <div class="card-header">
+              <h5>&#128172; Commentaires stockes (simulation)</h5>
+            </div>
+            <div class="card-body" id="simulatedComments"></div>
+          </div>
+
+          <div id="alertContainer" class="mb-md" style="display:none"></div>
+
+        <!-- DOM XSS type (exercise 6) -->
+        <% } else if (exercise.validator.type === 'domXss') { %>
+
+          <div class="card mb-lg">
+            <div class="card-header">
+              <h5>&#127760; Page vulnerable simulee</h5>
+            </div>
+            <div class="card-body">
+              <div class="form-group mb-md">
+                <label class="form-label">Modifie la valeur du parametre <code>nom</code> :</label>
+                <div class="flex gap-md items-center" style="flex-wrap:wrap">
+                  <span class="font-mono text-sm text-muted" style="white-space:nowrap">?nom=</span>
+                  <input type="text" class="form-input font-mono" id="domXssParam"
+                    value="<%= exercise.partialExample %>"
+                    placeholder="Entrez une valeur..."
+                    oninput="updateDomXss()" style="flex:1;min-width:200px">
+                </div>
+                <div class="url-bar mt-sm" id="urlBar">http://vulnerable-site.com/page?nom=Visiteur</div>
+              </div>
+
+              <div class="simulated-page">
+                <div class="text-xs text-muted mb-sm">&#128196; page.html — injection via <code>innerHTML</code></div>
+                <p>Bienvenue, <strong><span id="domXssTitle">Visiteur</span></strong> !</p>
+                <p class="text-sm text-muted">Cette page lit le parametre URL et l'affiche sans nettoyage.</p>
+              </div>
             </div>
           </div>
 
-          <p class="text-sm text-secondary mb-md">
-            <strong>Mode SAFE :</strong> Le contenu est echappe (affiche comme texte).<br>
-            <strong>Mode UNSAFE :</strong> Le contenu est rendu tel quel (vulnerable).
-          </p>
+          <div id="alertContainer" class="mb-md" style="display:none"></div>
 
-          <button type="submit" class="btn btn-warning">
-            &#128228; Poster le message
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Messages postes -->
-    <div class="card mb-lg" id="postsCard">
-      <div class="card-header">
-        <h4>&#128172; Messages postes (<span id="postCount"><%= posts.length %></span>)</h4>
-      </div>
-      <div class="card-body" id="postsContainer">
-        <% if (posts.length === 0) { %>
-          <p class="text-muted text-center py-lg">Aucun message pour le moment. Soyez le premier a poster !</p>
+        <!-- STANDARD types: domCheck, regex (exercises 1, 2, 3, 5) -->
         <% } else { %>
-          <% posts.forEach(post => { %>
-            <div class="xss-post <%= post.safe ? 'safe' : 'unsafe' %>">
-              <div class="xss-post-header">
-                <div class="xss-post-author">
-                  &#128100; <%= post.author %>
-                  <span class="badge <%= post.safe ? 'badge-safe' : 'badge-unsafe' %>">
-                    <%= post.safe ? 'SAFE' : 'UNSAFE' %>
-                  </span>
-                </div>
-                <span class="xss-post-time"><%= new Date(post.timestamp).toLocaleString('fr-FR') %></span>
+
+          <div class="form-group mb-md">
+            <label for="exerciseInput" class="form-label">Votre payload :</label>
+            <textarea
+              class="form-textarea font-mono"
+              id="exerciseInput"
+              rows="3"
+              placeholder="Entrez votre code HTML..."
+              oninput="updatePreview()"><%= exercise.partialExample %></textarea>
+          </div>
+
+          <!-- Dual preview -->
+          <div class="xss-comparison mb-md">
+            <div class="xss-panel vulnerable">
+              <div class="xss-panel-header">
+                <span class="badge badge-danger">&#9888; UNSAFE</span>
+                innerHTML
               </div>
-              <div class="xss-post-content">
-                <% if (post.safe) { %>
-                  <%= post.content %>
-                <% } else if (post.author === user) { %>
-                  <div class="alert alert-danger mb-md">
-                    <span class="alert-icon">&#9888;</span>
-                    <div class="alert-content">
-                      <p class="alert-message text-sm">Rendu UNSAFE : Le contenu ci-dessous est rendu tel quel (HTML/JS non echappe)</p>
-                    </div>
-                  </div>
-                  <%- post.content %>
-                <% } else { %>
-                  <div class="alert alert-info mb-md">
-                    <div class="alert-content">
-                      <p class="alert-message text-sm">Payload UNSAFE de <strong><%= post.author %></strong> — s'execute uniquement pour son auteur.</p>
-                    </div>
-                  </div>
-                  <code><%= post.content %></code>
-                <% } %>
-              </div>
+              <div class="xss-panel-body" id="unsafePreview"></div>
             </div>
-          <% }) %>
+            <div class="xss-panel secure">
+              <div class="xss-panel-header">
+                <span class="badge badge-success">&#10003; SAFE</span>
+                textContent
+              </div>
+              <div class="xss-panel-body" id="safePreview"></div>
+            </div>
+          </div>
+
+          <div id="alertContainer" class="mb-md" style="display:none"></div>
+
         <% } %>
+
+        <!-- Admin solution (shown immediately for teacher) -->
+        <% if (isAdmin) { %>
+        <div class="alert alert-success mb-md">
+          <span class="alert-icon">&#128218;</span>
+          <div class="alert-content">
+            <p class="alert-title">Solution (mode enseignant)</p>
+            <p class="alert-message"><code><%- exercise.solution %></code>
+            <% if (exercise.solutionNote) { %> — <%= exercise.solutionNote %><% } %></p>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Action buttons -->
+        <div class="flex gap-md mt-md" style="flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="validateExercise()" id="validateBtn">&#10003; Valider ma reponse</button>
+          <button class="btn btn-sm" onclick="revealSolution()" id="showSolutionBtn">&#128161; Voir la solution</button>
+        </div>
+
+        <!-- Solution reveal (hidden) -->
+        <div id="solutionBlock" class="alert alert-warning mt-md" style="display:none">
+          <span class="alert-icon">&#128161;</span>
+          <div class="alert-content">
+            <p class="alert-title">Solution</p>
+            <p class="alert-message"><code><%- exercise.solution %></code></p>
+            <% if (exercise.solutionNote) { %>
+              <p class="alert-message text-sm"><%= exercise.solutionNote %></p>
+            <% } %>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Commentaires admin globaux -->
-    <% if (globalComments.length > 0) { %>
-      <div class="card card-primary mb-lg" id="globalCommentsCard">
-        <div class="card-header">
-          <h4>&#128227; Annonces de l'administrateur</h4>
-        </div>
-        <div class="card-body" id="globalCommentsContainer">
-          <% globalComments.forEach(comment => { %>
-            <div class="alert alert-info mb-md">
-              <div class="alert-content">
-                <div class="flex justify-between items-center mb-sm">
-                  <strong>&#128100; Administrateur</strong>
-                  <span class="text-xs text-muted"><%= new Date(comment.timestamp).toLocaleString('fr-FR') %></span>
-                </div>
-                <!-- ATTENTION : Rendu non echappe pour demonstration -->
-                <div class="mt-sm">
-                  <%- comment.content %>
-                </div>
-              </div>
-            </div>
-          <% }) %>
-        </div>
+    <!-- Hints card -->
+    <div class="card mb-lg">
+      <div class="card-header">
+        <h4>&#128161; Indices progressifs</h4>
       </div>
+      <div class="card-body">
+        <div id="hintsList" class="mb-md"></div>
+        <button class="btn btn-sm" id="hintBtn" onclick="showNextHint()">
+          Reveler l'indice 1 / <%= exercise.hints.length %>
+        </button>
+      </div>
+    </div>
+
+    <!-- Validation result -->
+    <div id="validationResult" class="mb-lg" style="display:none"></div>
+
+    <!-- Explanation card (hidden until success) -->
+    <div id="explanationCard" class="card card-success mb-lg" style="display:none">
+      <div class="card-header">
+        <h4>&#9989; Explication</h4>
+      </div>
+      <div class="card-body">
+        <%- exercise.explanation %>
+      </div>
+    </div>
+
     <% } %>
 
-    <!-- Section commentaires -->
-    <div class="card">
-      <div class="card-header">
-        <h4>&#128173; Commentaires (<span id="commentCount"><%= comments.length %></span>)</h4>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="/chapter/<%= chapter.id %>/comment" class="mb-lg">
-          <div class="form-group">
-            <label for="commentContent" class="form-label">Ajouter un commentaire :</label>
-            <textarea
-              class="form-textarea"
-              id="commentContent"
-              name="content"
-              rows="2"
-              required
-              placeholder="Votre commentaire..."
-            ></textarea>
-          </div>
-          <button type="submit" class="btn btn-success">
-            &#128172; Commenter
-          </button>
-        </form>
-
-        <hr>
-
-        <div id="commentsContainer">
-          <% if (comments.length === 0) { %>
-            <p class="text-muted text-center">Aucun commentaire pour le moment.</p>
-          <% } else { %>
-            <% comments.forEach(comment => { %>
-              <div class="card mb-md">
-                <div class="card-body">
-                  <div class="flex justify-between items-center mb-sm">
-                    <span class="text-sm">&#128100; <%= comment.author %></span>
-                    <span class="text-xs text-muted"><%= new Date(comment.timestamp).toLocaleString('fr-FR') %></span>
-                  </div>
-                  <p class="mb-0"><%= comment.content %></p>
-                </div>
-              </div>
-            <% }) %>
-          <% } %>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation chapitres -->
+    <!-- Navigation -->
     <div class="flex justify-between items-center mt-xl">
       <% const _prev = typeof prevChapter !== 'undefined' ? prevChapter : null; %>
       <% const _next = typeof nextChapter !== 'undefined' ? nextChapter : null; %>
@@ -225,103 +316,274 @@
       <% const _tot  = typeof totalChapters !== 'undefined' ? totalChapters : null; %>
 
       <% if (_prev) { %>
-        <a href="/chapter/<%= _prev.id %>" class="btn">&#8592; <%= _prev.title.replace(/^Chapitre \d+ : /, '') %></a>
+        <a href="/chapter/<%= _prev.id %>" class="btn">&#8592; <%= _prev.title.replace(/^Exercice \d+ : /, '') %></a>
       <% } else { %>
         <a href="/chapters" class="btn">&#8592; Liste des chapitres</a>
       <% } %>
 
       <% if (_idx !== null) { %>
-        <span class="text-sm text-muted">Chapitre <%= _idx + 1 %> / <%= _tot %></span>
+        <span class="text-sm text-muted">Exercice <%= _idx + 1 %> / <%= _tot %></span>
       <% } %>
 
       <% if (_next) { %>
-        <a href="/chapter/<%= _next.id %>" class="btn btn-primary"><%= _next.title.replace(/^Chapitre \d+ : /, '') %> &#8594;</a>
+        <a href="/chapter/<%= _next.id %>" class="btn btn-primary"><%= _next.title.replace(/^Exercice \d+ : /, '') %> &#8594;</a>
       <% } else { %>
         <a href="/demo" class="btn btn-primary">Demo interactive &#8594;</a>
       <% } %>
     </div>
+
   </main>
 
   <%- include('partials/footer') %>
 
   <script src="/js/app.js"></script>
   <script>
-    // Toggle safe mode indicator
-    const safeMode = document.getElementById('safeMode');
-    const modeIndicator = document.getElementById('modeIndicator');
+    // ── Exercise data ──────────────────────────────────────────────
+    const EXERCISE = <%- exercise ? JSON.stringify(exercise).replace(/<\//g, '<\\/') : 'null' %>;
+    const IS_ADMIN = <%= isAdmin ? 'true' : 'false' %>;
 
-    safeMode.addEventListener('change', function() {
-      if (this.checked) {
-        modeIndicator.className = 'xss-mode-indicator safe';
-        modeIndicator.innerHTML = '&#10003; SAFE - Le HTML/JS sera echappe';
-      } else {
-        modeIndicator.className = 'xss-mode-indicator unsafe';
-        modeIndicator.innerHTML = '&#9888; UNSAFE - Le HTML/JS sera execute';
+    // ── State ──────────────────────────────────────────────────────
+    let hintsShown = 0;
+    let exerciseCompleted = false;
+    let selectedChoice = null;
+    let storedPosts = [];
+    let reloadSimulated = false;
+    const interceptedAlerts = [];
+
+    // ── Alert interception ─────────────────────────────────────────
+    window.alert = function(msg) {
+      const message = String(msg);
+      interceptedAlerts.push(message);
+      const container = document.getElementById('alertContainer');
+      if (container) {
+        container.style.display = 'block';
+        if (!container.querySelector('.alert-intercept-header')) {
+          const header = document.createElement('div');
+          header.className = 'alert-intercept-header';
+          header.textContent = '🔔 ALERT() INTERCEPTE';
+          container.prepend(header);
+        }
+        const div = document.createElement('div');
+        div.className = 'alert-intercepted';
+        div.innerHTML = '<span class="alert-intercept-label">alert() #' + interceptedAlerts.length + '</span>' + escapeHtml(message);
+        container.appendChild(div);
       }
-    });
-
-    // Auto-refresh functionality
-    const CHAPTER_ID = '<%= chapter.id %>';
-    let currentCounts = {
-      posts: <%= posts.length %>,
-      comments: <%= comments.length %>,
-      globalComments: <%= globalComments.length %>
+      // For domXss: mark that alert fired
+      if (EXERCISE && EXERCISE.validator.type === 'domXss') {
+        domXssAlertFired = true;
+      }
     };
-    let autoRefreshEnabled = true;
-    let refreshInterval = null;
 
-    async function refreshChapterData() {
-      if (!autoRefreshEnabled) return;
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
-      try {
-        const response = await fetch(`/api/chapter/${CHAPTER_ID}`);
-        const data = await response.json();
+    // ── Standard preview (exercises 1, 2, 3, 5) ───────────────────
+    function updatePreview() {
+      if (!EXERCISE || EXERCISE.validator.type === 'choice' ||
+          EXERCISE.validator.type === 'storedXss' || EXERCISE.validator.type === 'domXss') return;
 
-        if (data.success) {
-          if (data.counts.posts !== currentCounts.posts ||
-              data.counts.comments !== currentCounts.comments ||
-              data.counts.globalComments !== currentCounts.globalComments) {
-            ToastManager.info('Nouveau contenu disponible ! Rechargement...', 2000);
-            setTimeout(() => location.reload(), 2000);
+      const input = document.getElementById('exerciseInput')?.value || '';
+      const unsafePanel = document.getElementById('unsafePreview');
+      const safePanel = document.getElementById('safePreview');
+
+      if (unsafePanel) {
+        unsafePanel.innerHTML = input;
+        // Re-execute injected <script> tags to simulate real behavior
+        unsafePanel.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      }
+      if (safePanel) {
+        safePanel.textContent = input;
+      }
+    }
+
+    // ── Stored XSS simulation ──────────────────────────────────────
+    function addStoredPost() {
+      const input = document.getElementById('exerciseInput')?.value || '';
+      if (!input.trim()) return;
+      storedPosts.push(input);
+      renderStoredPosts();
+      document.getElementById('simulatedCommentsCard').style.display = 'block';
+      document.getElementById('reloadBtn').style.display = 'inline-flex';
+    }
+
+    function renderStoredPosts() {
+      const container = document.getElementById('simulatedComments');
+      if (!container) return;
+      container.innerHTML = '';
+      storedPosts.forEach(post => {
+        const div = document.createElement('div');
+        div.className = 'card mb-sm';
+        div.innerHTML = '<div class="card-body"><div class="flex justify-between mb-sm"><span class="text-sm">&#128100; Utilisateur</span><span class="badge badge-unsafe">UNSAFE</span></div><div>' + post + '</div></div>';
+        container.appendChild(div);
+      });
+    }
+
+    function simulateReload() {
+      reloadSimulated = true;
+      renderStoredPosts();
+      if (ToastManager) ToastManager.info('Rechargement simule — les payloads stockes se re-executent !', 3000);
+    }
+
+    // ── DOM XSS simulation ─────────────────────────────────────────
+    let domXssAlertFired = false;
+
+    function updateDomXss() {
+      const param = document.getElementById('domXssParam')?.value || '';
+      const titleEl = document.getElementById('domXssTitle');
+      const urlBar = document.getElementById('urlBar');
+
+      if (urlBar) urlBar.textContent = 'http://vulnerable-site.com/page?nom=' + param;
+      if (titleEl) titleEl.innerHTML = param; // Intentionally vulnerable for demo
+    }
+
+    // ── Choice selection (exercise 7) ──────────────────────────────
+    const PAYLOAD_CHOICE = '<img src=x onerror="alert(\'XSS\')">';
+
+    function selectChoice(choice) {
+      selectedChoice = choice;
+      document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('choice-' + choice).classList.add('selected');
+
+      const preview = document.getElementById('choicePreview');
+      const alertContainer = document.getElementById('alertContainer');
+      if (alertContainer) alertContainer.style.display = 'none';
+      if (alertContainer) alertContainer.innerHTML = '';
+
+      if (preview) {
+        if (choice === 'a') {
+          preview.innerHTML = '<div class="card-body">' + PAYLOAD_CHOICE + '</div>';
+          // Re-execute scripts
+          preview.querySelectorAll('script').forEach(old => {
+            const s = document.createElement('script');
+            s.textContent = old.textContent;
+            old.replaceWith(s);
+          });
+        } else if (choice === 'b') {
+          preview.innerHTML = '<div class="card-body"></div>';
+          preview.querySelector('.card-body').textContent = PAYLOAD_CHOICE;
+        } else if (choice === 'c') {
+          // Blacklist approach (easily bypassed)
+          const filtered = PAYLOAD_CHOICE
+            .replace(/onerror/gi, '')
+            .replace(/alert/gi, '');
+          preview.innerHTML = '<div class="card-body">' + filtered + '</div>';
+        }
+      }
+    }
+
+    // ── Validation ─────────────────────────────────────────────────
+    function validateExercise() {
+      if (!EXERCISE || exerciseCompleted) return;
+      const validator = EXERCISE.validator;
+      let success = false;
+
+      if (validator.type === 'domCheck') {
+        const input = document.getElementById('exerciseInput')?.value || '';
+        const tmp = document.createElement('div');
+        tmp.innerHTML = input;
+        const el = tmp.querySelector(validator.tag);
+        if (el) {
+          if (validator.minTextLength) {
+            success = el.textContent.trim().length >= validator.minTextLength;
+          } else if (validator.attrs) {
+            success = validator.attrs.every(a => el.hasAttribute(a));
+          } else {
+            success = true;
           }
         }
-      } catch (error) {
-        console.error('Erreur rafraichissement:', error);
+
+      } else if (validator.type === 'regex') {
+        const input = document.getElementById('exerciseInput')?.value || '';
+        const re = new RegExp(validator.pattern, 'i');
+        success = re.test(input);
+
+      } else if (validator.type === 'storedXss') {
+        success = storedPosts.length > 0 && reloadSimulated;
+
+      } else if (validator.type === 'domXss') {
+        const param = document.getElementById('domXssParam')?.value || '';
+        success = /(onerror|onclick|onload)/i.test(param) && /alert/i.test(param);
+
+      } else if (validator.type === 'choice') {
+        success = selectedChoice === validator.correctChoice;
       }
-    }
 
-    function toggleAutoRefresh() {
-      autoRefreshEnabled = !autoRefreshEnabled;
-      const indicator = document.getElementById('refreshIndicator');
-
-      if (autoRefreshEnabled) {
-        indicator.className = 'badge badge-success';
-        indicator.innerHTML = '&#128260; Auto';
-        indicator.title = 'Rafraichissement auto active';
-        startAutoRefresh();
+      if (success) {
+        showSuccess();
       } else {
-        indicator.className = 'badge';
-        indicator.innerHTML = '&#9208; Pause';
-        indicator.title = 'Rafraichissement auto en pause';
-        stopAutoRefresh();
+        showError();
       }
     }
 
-    function startAutoRefresh() {
-      if (refreshInterval) clearInterval(refreshInterval);
-      refreshInterval = setInterval(refreshChapterData, 5000);
+    function showSuccess() {
+      exerciseCompleted = true;
+      const result = document.getElementById('validationResult');
+      result.style.display = 'block';
+      result.className = 'alert alert-success mb-lg';
+      result.innerHTML = '<span class="alert-icon">&#9989;</span><div class="alert-content"><p class="alert-message"><strong>Bravo !</strong> Exercice reussi. Lisez l\'explication ci-dessous.</p></div>';
+      document.getElementById('explanationCard').style.display = 'block';
+      document.getElementById('validateBtn').disabled = true;
+      document.getElementById('showSolutionBtn').style.display = 'none';
+      document.getElementById('explanationCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function stopAutoRefresh() {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        refreshInterval = null;
+    function showError() {
+      const result = document.getElementById('validationResult');
+      result.style.display = 'block';
+      result.className = 'alert alert-danger mb-lg';
+      result.innerHTML = '<span class="alert-icon">&#10060;</span><div class="alert-content"><p class="alert-message">Pas encore correct... Utilisez un indice ou verifiez la preview UNSAFE.</p></div>';
+    }
+
+    // ── Hints ──────────────────────────────────────────────────────
+    function showNextHint() {
+      if (!EXERCISE || hintsShown >= EXERCISE.hints.length) return;
+      const container = document.getElementById('hintsList');
+      const div = document.createElement('div');
+      div.className = 'alert alert-info mb-sm hint-item';
+      div.innerHTML = '<span class="alert-icon">&#128161;</span><div class="alert-content"><p class="alert-message"><strong>Indice ' + (hintsShown + 1) + ' :</strong> ' + EXERCISE.hints[hintsShown] + '</p></div>';
+      container.appendChild(div);
+      hintsShown++;
+      const btn = document.getElementById('hintBtn');
+      if (hintsShown >= EXERCISE.hints.length) {
+        btn.disabled = true;
+        btn.textContent = 'Tous les indices reveles';
+      } else {
+        btn.textContent = 'Reveler l\'indice ' + (hintsShown + 1) + ' / ' + EXERCISE.hints.length;
       }
     }
 
-    // Start auto-refresh
-    startAutoRefresh();
-    window.addEventListener('beforeunload', stopAutoRefresh);
+    // ── Solution reveal ────────────────────────────────────────────
+    function revealSolution() {
+      document.getElementById('solutionBlock').style.display = 'flex';
+      document.getElementById('showSolutionBtn').style.display = 'none';
+    }
+
+    // ── Init ───────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!EXERCISE) return;
+
+      // Initial preview for standard exercises
+      if (EXERCISE.validator.type !== 'choice' &&
+          EXERCISE.validator.type !== 'storedXss' &&
+          EXERCISE.validator.type !== 'domXss') {
+        updatePreview();
+      }
+
+      // Initial DOM XSS render
+      if (EXERCISE.validator.type === 'domXss') {
+        updateDomXss();
+      }
+
+      // Admin: auto-show explanation
+      if (IS_ADMIN) {
+        document.getElementById('explanationCard').style.display = 'block';
+      }
+    });
   </script>
 </body>
 </html>

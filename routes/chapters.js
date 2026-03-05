@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jsonStore = require('../services/jsonStore');
 const { requireAuth } = require('./auth');
+const exercisesData = require('../exercises.json');
 
 // Liste des chapitres
 router.get('/chapters', requireAuth, (req, res) => {
@@ -29,9 +30,12 @@ router.get('/chapter/:id', requireAuth, (req, res) => {
   const prevChapter = currentIndex > 0 ? allChapters[currentIndex - 1] : null;
   const nextChapter = currentIndex < allChapters.length - 1 ? allChapters[currentIndex + 1] : null;
 
+  const exercise = exercisesData.exercises[currentIndex] || null;
+
   res.render('chapter', {
     title: chapter.title,
     chapter,
+    exercise,
     posts,
     comments,
     globalComments,

@@ -1,0 +1,123 @@
+{
+  "exercises": [
+    {
+      "id": 1,
+      "title": "Injection HTML basique",
+      "stepperLabel": "HTML",
+      "goal": "Comprendre pourquoi innerHTML est dangereux vs textContent",
+      "instructions": "Tape dans la zone de saisie pour faire apparaître ton prénom dans un grand titre. Observe la différence entre les deux panneaux.",
+      "partialExample": "h1 Ton Prénom",
+      "hints": [
+        "Le navigateur comprend des balises entourées de <code>&lt;</code> et <code>&gt;</code>.",
+        "La balise pour un grand titre est <code>h1</code>. Elle s'ouvre ET se ferme.",
+        "Syntaxe complète : <code>&lt;h1&gt;Ton Prénom&lt;/h1&gt;</code>"
+      ],
+      "solution": "&lt;h1&gt;Ton Prénom&lt;/h1&gt;",
+      "solutionNote": "Remplace 'Ton Prénom' par ton prénom réel",
+      "validator": { "type": "domCheck", "tag": "h1", "minTextLength": 1 },
+      "explanation": "<strong>innerHTML</strong> interprète le HTML comme du code : <code>&lt;h1&gt;</code> devient un vrai titre. <strong>textContent</strong> affiche les balises comme du texte brut — aucune interprétation, aucun risque."
+    },
+    {
+      "id": 2,
+      "title": "Attributs HTML",
+      "stepperLabel": "Attributs",
+      "goal": "Découvrir que les attributs modifient le comportement — y compris pour exécuter du JS",
+      "instructions": "Complète la balise pour créer un lien cliquable qui s'ouvre dans un nouvel onglet. Ajoute les deux attributs manquants.",
+      "partialExample": "<a>Visitez Example</a>",
+      "hints": [
+        "Un lien a besoin d'une destination. L'attribut pour spécifier l'URL est <code>href</code>.",
+        "Pour ouvrir dans un nouvel onglet, il y a un attribut <code>target</code> avec une valeur commençant par <code>_</code>.",
+        "<code>href=\"https://example.com\" target=\"_blank\"</code> — ajoute ces deux attributs à la balise <code>&lt;a&gt;</code>."
+      ],
+      "solution": "&lt;a href=\"https://example.com\" target=\"_blank\"&gt;Visitez Example&lt;/a&gt;",
+      "solutionNote": "",
+      "validator": { "type": "domCheck", "tag": "a", "attrs": ["href", "target"] },
+      "explanation": "Les attributs enrichissent les balises. <code>href</code> = destination, <code>target=\"_blank\"</code> = nouvel onglet. D'autres attributs comme <code>onclick</code>, <code>onerror</code>, <code>onload</code> peuvent exécuter du JavaScript — c'est le premier vecteur XSS."
+    },
+    {
+      "id": 3,
+      "title": "Premier XSS — event handler",
+      "stepperLabel": "Event XSS",
+      "goal": "Exécuter du JavaScript via un attribut d'événement HTML",
+      "instructions": "Ajoute un attribut à la balise incomplète pour que le clic déclenche une alerte. L'alerte sera interceptée et affichée dans le panneau de résultat — puis clique sur le bouton dans le panneau UNSAFE.",
+      "partialExample": "<button>Cliquez-moi</button>",
+      "hints": [
+        "Les attributs qui réagissent aux actions utilisateur commencent tous par <code>on</code> (onclick, onerror, onload...).",
+        "Un clic sur un bouton déclenche l'événement <code>click</code>. L'attribut correspondant est <code>onclick</code>.",
+        "Syntaxe : <code>onclick=\"alert('XSS')\"</code> — ajoute cet attribut à ta balise <code>&lt;button&gt;</code>."
+      ],
+      "solution": "&lt;button onclick=\"alert('XSS!')\"&gt;Cliquez-moi&lt;/button&gt;",
+      "solutionNote": "Après avoir testé, clique sur le bouton dans le panneau UNSAFE",
+      "validator": { "type": "regex", "pattern": "onclick\\s*=\\s*[\"'].*alert\\s*\\(" },
+      "explanation": "Les attributs <code>onclick</code>, <code>onload</code>, <code>onerror</code>... exécutent du JavaScript arbitraire. C'est l'essence du XSS : injecter du HTML contenant un event handler que le navigateur de la victime exécute comme s'il était légitime."
+    },
+    {
+      "id": 4,
+      "title": "XSS Stocké — la persistance",
+      "stepperLabel": "Stocké",
+      "goal": "Comprendre pourquoi le XSS stocké frappe tous les visiteurs, même sans action de leur part",
+      "instructions": "Poste un payload XSS dans la zone de commentaires simulée. Clique ensuite sur « Simuler rechargement » : le payload se ré-exécute automatiquement, sans que tu le reposes.",
+      "partialExample": "<img src=x onerror=\"alert('test')\">",
+      "hints": [
+        "Un commentaire est sauvegardé, puis ré-affiché à chaque visite de la page.",
+        "Si le commentaire est rendu avec <code>innerHTML</code>, tout payload XSS qu'il contient s'exécute à nouveau.",
+        "Poste un payload valide (ex: <code>&lt;img src=x onerror=\"alert('Stored!')\"&gt;</code>), puis clique 'Simuler rechargement'."
+      ],
+      "solution": "&lt;img src=x onerror=\"alert('Stored XSS!')\"&gt;",
+      "solutionNote": "Poste ce payload dans la zone commentaire, puis clique 'Simuler rechargement'",
+      "validator": { "type": "storedXss" },
+      "explanation": "Le XSS stocké est sauvegardé en base de données et renvoyé à chaque visite. Contrairement au XSS réfléchi (nécessite un clic sur un lien piégé), le XSS stocké frappe AUTOMATIQUEMENT tous les visiteurs — aucune interaction requise de leur part."
+    },
+    {
+      "id": 5,
+      "title": "Vol de cookie — simulation",
+      "stepperLabel": "Cookie",
+      "goal": "Comprendre ce que l'attaquant cible : les cookies de session",
+      "instructions": "Adapte le payload pour afficher le contenu de <code>document.cookie</code> dans une alerte. Tu verras les cookies de démo de cette page (demoToken, userName...).",
+      "partialExample": "<img src=x onerror=\"alert(cookie)\">",
+      "hints": [
+        "La variable <code>cookie</code> seule n'existe pas en JavaScript. Les cookies sont accessibles via un objet global.",
+        "Cet objet global s'appelle <code>document</code>. Les cookies sont dans <code>document.cookie</code>.",
+        "Remplace simplement <code>cookie</code> par <code>document.cookie</code> dans ton payload."
+      ],
+      "solution": "&lt;img src=x onerror=\"alert(document.cookie)\"&gt;",
+      "solutionNote": "",
+      "validator": { "type": "regex", "pattern": "document\\.cookie" },
+      "explanation": "<code>document.cookie</code> expose tous les cookies non-<code>HttpOnly</code>. En situation réelle, l'attaquant exfiltre cette chaîne vers son serveur avec <code>fetch()</code>. Il obtient le cookie de session et peut usurper l'identité de la victime sans connaître son mot de passe."
+    },
+    {
+      "id": 6,
+      "title": "DOM XSS — source vers sink",
+      "stepperLabel": "DOM XSS",
+      "goal": "Comprendre qu'un paramètre d'URL peut injecter du code sans passer par le serveur",
+      "instructions": "La page simulée ci-dessous lit le paramètre <code>nom</code> et l'injecte avec <code>innerHTML</code>. Modifie la valeur du paramètre pour déclencher une alerte.",
+      "partialExample": "Visiteur",
+      "hints": [
+        "La valeur du paramètre est injectée directement dans la page avec <code>innerHTML</code>.",
+        "Si la valeur contient du HTML, le navigateur l'interprète — y compris les attributs d'événements.",
+        "Essaie : <code>&lt;img src=x onerror=\"alert('DOM XSS')\"&gt;</code> comme valeur du paramètre."
+      ],
+      "solution": "&lt;img src=x onerror=\"alert('DOM XSS')\"&gt;",
+      "solutionNote": "Tape cette valeur dans le champ 'Valeur du paramètre nom'",
+      "validator": { "type": "domXss" },
+      "explanation": "Le DOM XSS est entièrement côté client — aucune trace serveur. Le JavaScript client lit une source non fiable (<code>location.hash</code>, paramètre URL) et l'injecte dans un sink (<code>innerHTML</code>). Pour défendre : utiliser <code>textContent</code> ou DOMPurify."
+    },
+    {
+      "id": 7,
+      "title": "Corriger la vulnérabilité",
+      "stepperLabel": "Fix",
+      "goal": "Choisir la bonne méthode de rendu pour neutraliser le XSS sans casser l'affichage",
+      "instructions": "Un payload XSS est pré-chargé. Choisis une méthode de rendu, teste-la, et sélectionne celle qui affiche le code comme texte sans l'exécuter.",
+      "partialExample": "<img src=x onerror=\"alert('XSS')\">",
+      "hints": [
+        "Le but est d'afficher le code, pas de l'exécuter. Quelle propriété JS traite TOUT comme du texte brut ?",
+        "<code>innerHTML</code> interprète le HTML. <code>textContent</code> ne le fait jamais — il affiche les balises telles quelles.",
+        "La blacklist (<code>.replace</code>) est contournable avec des majuscules, des entités HTML ou des balises imbriquées."
+      ],
+      "solution": "textContent",
+      "solutionNote": "Choix B",
+      "validator": { "type": "choice", "correctChoice": "b" },
+      "explanation": "<code>textContent</code> est la solution la plus sûre : toujours du texte brut, jamais du HTML. Les blacklists sont systématiquement contournables. En EJS, utiliser <code>&lt;%= %&gt;</code> (échappement auto) plutôt que <code>&lt;%- %&gt;</code> (brut)."
+    }
+  ]
+}
